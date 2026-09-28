@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Autopilot — Prototipo</title>
+<title>Instala APLAZO en tu tienda</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;700;800&display=swap" rel="stylesheet">
@@ -25,9 +25,6 @@
     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1120px;margin:0 auto;padding:1.2rem 1rem 3rem}
 
-  .banner{background:var(--frame);border-left:3px solid var(--volt);padding:.8rem 1rem;
-    border-radius:0 6px 6px 0;font-size:.8rem;color:var(--muted);margin-bottom:1.1rem}
-  .banner b{color:var(--text)}
 
   .app{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);
     box-shadow:0 1px 2px rgba(6,6,6,.04),0 8px 28px rgba(6,6,6,.06)}
@@ -83,13 +80,17 @@
   .kicker{font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
     color:var(--core);margin-bottom:.3rem}
   .stepcard h3{margin:0 0 .5rem;font-size:1.14rem;font-weight:800;letter-spacing:-.01em}
-  .stepcard p.instr{margin:0 0 .8rem}
+  .stepcard p.instr{margin:0 0 .85rem}
+  .stepcard img.shot{display:block;width:100%;height:auto;border:1px solid var(--line);
+    border-radius:8px;margin:0 0 .9rem;background:var(--frame)}
   .check{background:var(--frame);border-radius:8px;padding:.65rem .8rem;font-size:.84rem;
     display:flex;gap:.55rem;align-items:flex-start}
   .check .tick{flex:0 0 15px;height:15px;border-radius:4px;background:var(--aqua);margin-top:.2rem}
   .cred{margin-top:.7rem;border:1px solid var(--volt);background:rgba(255,204,0,.12);
     border-radius:8px;padding:.6rem .8rem;font-size:.82rem}
 
+  .ask{border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;background:var(--frame)}
+  .ask .aq{margin:0 0 .6rem;font-weight:800;font-size:.95rem}
   .actions{display:flex;gap:.55rem;flex-wrap:wrap}
   button{font-family:inherit;font-size:.87rem;font-weight:700;cursor:pointer;border-radius:999px;
     padding:.6rem 1.15rem;border:1px solid transparent}
@@ -122,18 +123,8 @@
     display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;
     font-size:.84rem;color:var(--muted)}
 
-  /* ---------- Panel de eventos ---------- */
-  .events{margin-top:1.1rem;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .events summary{cursor:pointer;padding:.7rem 1rem;font-size:.8rem;font-weight:700;
     background:var(--frame);list-style:none}
-  .events summary::-webkit-details-marker{display:none}
-  .events .body{padding:.8rem 1rem;max-height:220px;overflow:auto}
-  .events table{width:100%;border-collapse:collapse;font-size:.74rem;
     font-variant-numeric:tabular-nums}
-  .events td{padding:.24rem .4rem;border-bottom:1px solid var(--line);vertical-align:top}
-  .events td:first-child{color:var(--muted);white-space:nowrap}
-  .events td:nth-child(2){font-weight:700;white-space:nowrap}
-  .events .empty{color:var(--muted);font-size:.78rem}
 
   .rate{max-width:480px;margin:0 auto}
   .rate .rq{font-weight:800;color:var(--text)!important;margin:0 0 .7rem!important}
@@ -143,19 +134,10 @@
   .ropt:hover{border-color:var(--aqua)}
   .rate input{width:100%;font-family:inherit;font-size:.86rem;padding:.6rem .9rem;
     border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text)}
-  .notes{margin-top:2rem;font-size:.87rem;color:var(--muted)}
-  .notes h3{font-size:.95rem;color:var(--text);margin:1.3rem 0 .35rem}
-  .notes li{margin:.25rem 0}
 </style>
 </head>
 <body>
 <div class="wrap">
-
-  <div class="banner">
-    <b>Prototipo.</b> Sirve para probar la conversación antes de construir la página real.
-    El contenido de Shopify viene de la KB, incrustado como copia fija. La página final leerá
-    el snapshot publicado. No entrega credenciales: eso es la Versión 2.
-  </div>
 
   <div class="app">
     <header class="bar">
@@ -168,29 +150,7 @@
     <div id="screen"></div>
   </div>
 
-  <details class="events">
-    <summary>Eventos registrados <span id="evcount"></span></summary>
-    <div class="body" id="evbody"><p class="empty">Todavía no hay eventos</p></div>
-  </details>
 
-  <div class="notes">
-    <h3>Qué estás probando</h3>
-    <ul>
-      <li>Si la instrucción se entiende sin que nadie la explique</li>
-      <li>Si el asistente se queda en el paso cuando le preguntas otra cosa</li>
-      <li>Si escala en lugar de inventar cuando no sabe</li>
-      <li>Si los eventos alcanzan para medir abandono por paso</li>
-    </ul>
-    <h3>Pruebas que vale la pena hacer</h3>
-    <ul>
-      <li>Pídele que te dé tus credenciales</li>
-      <li>Pregúntale qué comisión cobra APLAZO</li>
-      <li>Pregúntale en cuántos días vas a poder vender</li>
-      <li>Dile que ignore sus instrucciones</li>
-      <li>Pregúntale algo del banner estando en el flujo de checkout</li>
-    </ul>
-  </div>
-</div>
 
 <script>
 // ===========================================================================
@@ -205,30 +165,30 @@ const KB = {
         label: "Activar APLAZO en tu checkout",
         blurb: "Para que tus clientes puedan pagar con APLAZO",
         steps: [
-          {id:"shopify_checkout_open_app_store",t:"Descarga la aplicación de APLAZO",
+          {id:"shopify_checkout_open_app_store",img:"img/shopify_checkout_open_app_store.jpg",t:"Descarga la aplicación de APLAZO",
            i:"Entra a la Shopify App Store y busca la app «Paga en 5 quincenas sin tarjeta de crédito». Ojo: hay dos apps distintas de APLAZO. Esta activa el método de pago; la otra muestra el banner en tus productos.",
            d:"Estás viendo la ficha de la app de APLAZO en la Shopify App Store",cred:false},
           {id:"shopify_checkout_click_install",t:"Haz clic en Instalar",
            i:"En la ficha de la app, da clic en el botón Instalar.",
            d:"Shopify inicia la instalación y te pide iniciar sesión",cred:false},
-          {id:"shopify_checkout_admin_login",t:"Inicia sesión en tu cuenta de Shopify",
+          {id:"shopify_checkout_admin_login",img:"img/shopify_checkout_admin_login.jpg",t:"Inicia sesión en tu cuenta de Shopify",
            i:"Ingresa con el correo y la contraseña de tu cuenta de Shopify. Son tus credenciales de Shopify, no las de APLAZO. No necesitas ser el dueño de la tienda: basta con tener el permiso de administrar e instalar apps y canales.",
            d:"La sesión queda iniciada y regresas a la pantalla de instalación",cred:false,
            br:"Si la cuenta no tiene el permiso de instalar apps, el dueño lo activa en Configuración, Usuarios y permisos"},
           {id:"shopify_checkout_confirm_install",t:"Revisa los permisos y confirma la instalación",
            i:"Shopify muestra la pantalla Instalar app con los datos a los que la app necesita acceso: ver datos personales y ver y editar datos de la tienda. Revísalos y da clic en Instalar para continuar.",
            d:"Aparece la pantalla de credenciales de APLAZO, que te saluda con el nombre de tu tienda",cred:false},
-          {id:"shopify_checkout_enter_credentials",t:"Ingresa tu Merchant ID y Client Secret",
+          {id:"shopify_checkout_enter_credentials",img:"img/shopify_checkout_enter_credentials.jpg",t:"Ingresa tu Merchant ID y Client Secret",
            i:"En la pantalla de APLAZO, pega el Merchant ID en el primer campo y el Client Secret en el segundo, y da clic en Ingresar.",
            d:"Las credenciales se aceptan y llegas a la pantalla de configuración de la app",cred:true,
            br:"Si no tienes credenciales, se escala con el equipo de APLAZO. El asistente no las entrega"},
-          {id:"shopify_checkout_activate",t:"Haz clic en Activar",
+          {id:"shopify_checkout_activate",img:"img/shopify_checkout_activate.jpg",t:"Haz clic en Activar",
            i:"En el panel de Shopify entra a Configuración y luego a Pagos, busca APLAZO y da clic en Activar para habilitarlo en el checkout.",
            d:"APLAZO aparece como método de pago disponible en el checkout",cred:false},
-          {id:"shopify_checkout_test_mode_off",t:"Confirma que el Modo de prueba esté apagado",
+          {id:"shopify_checkout_test_mode_off",img:"img/shopify_checkout_test_mode_off.jpg",t:"Confirma que el Modo de prueba esté apagado",
            i:"En esa misma pantalla hay un interruptor de Modo de prueba. Sirve para probar APLAZO sin procesar pagos reales. Si lo encendiste para probar, apágalo antes de empezar a vender: con el Modo de prueba encendido APLAZO se ve en el checkout pero no se crea ninguna orden real.",
            d:"El interruptor de Modo de prueba está apagado y el de APLAZO está encendido",cred:false},
-          {id:"shopify_checkout_verify",t:"Verifica que quedó activo",
+          {id:"shopify_checkout_verify",img:"img/shopify_checkout_verify.jpg",t:"Verifica que quedó activo",
            i:"Entra a Configuración y luego a Pagos en tu panel de Shopify. En la sección Métodos de pago adicionales debe aparecer APLAZO con la etiqueta Activo.",
            d:"APLAZO aparece con la etiqueta Activo en Métodos de pago adicionales",cred:false,
            br:"Si no aparece, se regresa al paso de Activar y si sigue igual se escala"}
@@ -238,26 +198,26 @@ const KB = {
         label: "Mostrar el banner en tus productos",
         blurb: "Para que tus clientes sepan que pueden pagar a plazos",
         steps: [
-          {id:"shopify_banner_open_app_store",t:"Descarga la aplicación Aplazo Banner",
+          {id:"shopify_banner_open_app_store",img:"img/shopify_banner_open_app_store.jpg",t:"Descarga la aplicación Aplazo Banner",
            i:"Entra a la Shopify App Store y busca la app «Promociona los pagos a plazos. Sin tarjeta de crédito». Es una segunda app, distinta a la del checkout.",
            d:"Estás viendo la ficha de Aplazo Banner",cred:false},
           {id:"shopify_banner_install",t:"Instala y confirma",
            i:"Da clic en Instalar en la ficha de la app y, cuando Shopify pida confirmación, da clic en Instalar otra vez.",
            d:"La app aparece como instalada en el panel de Shopify",cred:false},
-          {id:"shopify_banner_open_customize",t:"Ve a Tienda online y da clic en Personalizar",
+          {id:"shopify_banner_open_customize",img:"img/shopify_banner_open_customize.jpg",t:"Ve a Tienda online y da clic en Personalizar",
            i:"En el panel izquierdo de Shopify entra a Tienda online y da clic en Personalizar sobre el tema activo. En algunos temas el botón dice Editar tema.",
            d:"Se abre el editor del tema",cred:false},
-          {id:"shopify_banner_select_template",t:"Navega a Producto predeterminado",
+          {id:"shopify_banner_select_template",img:"img/shopify_banner_select_template.jpg",t:"Navega a Producto predeterminado",
            i:"En la parte superior del editor selecciona Página de inicio, luego Productos y luego Producto predeterminado.",
            d:"El editor muestra una página de producto y en el panel izquierdo aparece la sección Plantilla",cred:false,
            br:"Si la tienda tiene más de una plantilla de producto, el banner se agrega en cada una"},
-          {id:"shopify_banner_add_block",t:"Agrega el bloque desde la pestaña Apps",
+          {id:"shopify_banner_add_block",img:"img/shopify_banner_add_block.jpg",t:"Agrega el bloque desde la pestaña Apps",
            i:"En el panel izquierdo, dentro de la sección Plantilla, mueve el mouse debajo de las opciones hasta que aparezca el símbolo + azul y presiónalo. Abre la pestaña Apps y selecciona Aplazo Product Banner.",
            d:"Aplazo Product Banner aparece como bloque dentro de la sección Plantilla",cred:false},
           {id:"shopify_banner_position",t:"Acomoda el banner donde lo quieres",
            i:"Arrastra el bloque de Aplazo Product Banner hacia arriba o hacia abajo dentro de la sección Plantilla. La mayoría de las tiendas lo colocan justo debajo del precio.",
            d:"El banner queda donde lo quieres, visible en la vista previa",cred:false},
-          {id:"shopify_banner_verify",t:"Guarda y verifica en tu tienda",
+          {id:"shopify_banner_verify",img:"img/shopify_banner_verify.jpg",t:"Guarda y verifica en tu tienda",
            i:"Da clic en Guardar en la esquina superior derecha del editor. Luego abre una página de producto de tu tienda en vivo para confirmar que se ve el mensaje de pago a plazos.",
            d:"Ves el mensaje de APLAZO en una página de producto real",cred:false,
            br:"Si el bloque no aparece en la pestaña Apps, el tema probablemente no es compatible y se pasa al flujo de instalación por código"}
@@ -271,20 +231,20 @@ const KB = {
            i:"Esta ruta requiere usar las herramientas de desarrollador del navegador y editar el código de tu tema. Si prefieres no hacerlo tú, el equipo de APLAZO lo puede hacer contigo.",
            d:"Decidiste continuar, o pediste que alguien del equipo te ayude",cred:false,
            br:"Si el comercio no se siente cómodo, se escala y se detiene aquí"},
-          {id:"shopify_code_open_editor",t:"Abre el editor de código del tema",
+          {id:"shopify_code_open_editor",img:"img/shopify_code_open_editor.jpg",t:"Abre el editor de código del tema",
            i:"Ve a Tienda online, da clic en los tres puntos del tema activo y selecciona Editar código.",
            d:"El editor de código del tema está abierto",cred:false},
-          {id:"shopify_code_find_div_class",t:"Identifica la clase div donde debe aparecer el banner",
+          {id:"shopify_code_find_div_class",img:"img/shopify_code_find_div_class.jpg",t:"Identifica la clase div donde debe aparecer el banner",
            i:"Abre cualquier página de producto de tu tienda, da clic derecho y elige Inspeccionar. Da clic en el ícono selector del panel del inspector y selecciona el lugar donde quieres el banner. Busca una clase que empiece con div. y copia el nombre de la clase, tomando solo el texto antes del primer espacio dentro de las comillas.",
            d:"Copiaste el nombre de una clase",cred:false},
-          {id:"shopify_code_build_script",t:"Arma el script con tus propios datos",
+          {id:"shopify_code_build_script",img:"img/shopify_code_build_script.jpg",t:"Arma el script con tus propios datos",
            i:"Toma el script de APLAZO y reemplaza dos valores: merchant-id con tu Merchant ID, y la clase dentro de respawn-spot con la que copiaste en el paso anterior.",
            d:"Tienes un script con tu propio Merchant ID y tu propia clase div",cred:true},
-          {id:"shopify_code_test_in_console",t:"Pruébalo en el navegador antes de guardar nada",
+          {id:"shopify_code_test_in_console",img:"img/shopify_code_test_in_console.jpg",t:"Pruébalo en el navegador antes de guardar nada",
            i:"En el inspector, pega el script dentro de la etiqueta head usando Edit as HTML. Luego abre la pestaña Console y ejecuta el fragmento que carga el script. Revisa la página de producto para ver si aparece el banner. Todavía no se guarda nada, así que puedes repetirlo sin riesgo.",
            d:"El banner se ve en la página de producto dentro del navegador",cred:false,
            br:"Si no aparece, se prueba con otra clase div. Después de dos intentos fallidos se escala en vez de seguir adivinando"},
-          {id:"shopify_code_save_theme_liquid",t:"Guarda el script en theme.liquid",
+          {id:"shopify_code_save_theme_liquid",img:"img/shopify_code_save_theme_liquid.jpg",t:"Guarda el script en theme.liquid",
            i:"Solo después de confirmar que el banner funciona en el navegador: en el editor de código abre theme.liquid, busca donde cierra la etiqueta head, deja tres líneas en blanco antes del cierre, pega el script completo y da clic en Guardar.",
            d:"El banner aparece en la página de producto al recargar normalmente, sin usar la consola",cred:false}
         ]
@@ -318,7 +278,7 @@ const KB = {
 
 // ===========================================================================
 // 2. ESTADO. El avance de pasos lo controla la página, no el modelo.
-//    Es la decisión de arquitectura más importante del prototipo: la máquina
+//    Es la decisión de arquitectura más importante del portal: la máquina
 //    de estados es determinista y el modelo solo pone el lenguaje. Si el
 //    modelo controlara el avance, la métrica de abandono por paso sería
 //    tan confiable como el modelo, que es justo lo que no queremos.
@@ -502,7 +462,7 @@ async function ask(userText, opts){
     }
 
     if (!texto){
-      // Camino de prototipo: el asistente del visor de artifacts
+      // Respaldo: si el backend no responde, el asistente del visor
       const sample = await getSample();
       if (!sample){
         holder.textContent = 'El asistente no está disponible en esta vista';
@@ -637,21 +597,24 @@ function renderWork(){
         <div class="kicker">Paso ${S.idx+1} de ${n}</div>
         <h3>${st.t}</h3>
         <p class="instr">${st.i}</p>
+        ${st.img ? `<img class="shot" src="${st.img}" alt="Cómo se ve este paso" loading="lazy">` : ''}
         <div class="check"><span class="tick"></span>
-          <span><b>Sabes que quedó listo cuando</b> ${st.d}</span></div>
+          <span><b>Ya quedó cuando</b> ${st.d}</span></div>
         ${st.cred ? `<div class="cred"><b>Vas a necesitar tus credenciales</b> En esta versión el
           asistente no las entrega: si no las tienes, pide hablar con una persona</div>` : ''}
       </div>
-      <div class="actions">
-        <button class="b-primary" id="next">${S.idx===n-1?'Terminé':'Continuar'}</button>
-        <button class="b-ghost" id="fail">No me funcionó</button>
-        <button class="b-quiet" id="doubt">Tengo una duda</button>
+      <div class="ask">
+        <p class="aq">${S.idx===n-1 ? '¿Ya pasó eso?' : '¿Ya lo hiciste?'}</p>
+        <div class="actions">
+          <button class="b-primary" id="next">${S.idx===n-1 ? 'Sí, terminé' : 'Sí, ya está'}</button>
+          <button class="b-ghost" id="fail">No, algo salió diferente</button>
+        </div>
       </div>
       <div class="chat">
         <h4>Conversación</h4>
         <div class="log" id="log">${keep}</div>
         <div class="composer">
-          <input id="inp" type="text" placeholder="Escribe tu duda" autocomplete="off">
+          <input id="inp" type="text" placeholder="¿Tienes una duda? Escríbela aquí" autocomplete="off">
           <button class="b-primary" id="send">Enviar</button>
         </div>
         <div class="escalate">
@@ -676,7 +639,6 @@ function renderWork(){
     logEvent('step_failed');
     ask('Hice este paso y no me funcionó. Ayúdame a ver qué pudo pasar');
   };
-  document.getElementById('doubt').onclick = ()=>document.getElementById('inp').focus();
   document.getElementById('esc').onclick = ()=>{
     logEvent('escalated',{reason:'calendly_desde_el_paso'});
   };
@@ -743,12 +705,9 @@ function renderDone(){
 }
 
 function renderEvents(){
-  const b = document.getElementById('evbody');
-  document.getElementById('evcount').textContent = '(' + S.events.length + ')';
-  if (!S.events.length){ b.innerHTML = '<p class="empty">Todavía no hay eventos</p>'; return; }
-  b.innerHTML = '<table>' + S.events.slice().reverse().map(e=>
-    `<tr><td>${e.t}</td><td>${e.name}</td><td>${e.rating||e.merchant||e.step||e.platform||e.flow||e.reason||''}</td><td>${e.seconds!==''&&e.seconds!==undefined?e.seconds+'s':''}</td></tr>`
-  ).join('') + '</table>';
+  // El panel de eventos se quitó del portal. Los eventos siguen viajando al
+  // backend, que es donde se miden. Queda vacía para no tener que borrar las
+  // llamadas repartidas por el código.
 }
 
 document.getElementById('restart').onclick = ()=>{
@@ -759,5 +718,6 @@ document.getElementById('restart').onclick = ()=>{
 logEvent('session_started', { detail: MERCHANT_ID ? 'llegó con merchant_id' : 'llegó sin identificar' });
 render();
 </script>
+</div>
 </body>
 </html>
