@@ -219,8 +219,8 @@ const KB = {
           {id:"shopify_checkout_confirm_install",t:"Revisa los permisos y confirma la instalación",
            i:"Shopify muestra la pantalla Instalar app con los datos a los que la app necesita acceso: ver datos personales y ver y editar datos de la tienda. Revísalos y da clic en Instalar para continuar.",
            d:"Aparece la pantalla de credenciales de APLAZO, que te saluda con el nombre de tu tienda",cred:false},
-          {id:"shopify_checkout_enter_credentials",img:"img/shopify_checkout_enter_credentials.jpg",t:"Ingresa tu Merchant ID y Client Secret",
-           i:"En la pantalla de APLAZO, pega el Merchant ID en el primer campo y el Client Secret en el segundo, y da clic en Ingresar.",
+          {id:"shopify_checkout_enter_credentials",img:"img/shopify_checkout_enter_credentials.jpg",t:"Ingresa tu Merchant ID y Client Secret (tu API Token)",
+           i:"En la pantalla de APLAZO, pega el Merchant ID en el primer campo y tu API Token en el segundo, el que dice Client Secret, y da clic en Ingresar.",
            d:"Las credenciales se aceptan y llegas a la pantalla de configuración de la app",cred:true,
            br:"Si no tienes credenciales, se escala con el equipo de APLAZO. El asistente no las entrega"},
           {id:"shopify_checkout_activate",img:"img/shopify_checkout_activate.jpg",t:"Haz clic en Activar",
@@ -393,6 +393,113 @@ const KB = {
       ["¿En cuánto tiempo voy a poder vender con APLAZO?","La instalación en sí toma minutos. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
       ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta, no yo. Te puedo conectar con esa persona."]
     ]
+  },
+  VTEX: {
+    label: "VTEX",
+    flows: {
+      CHECKOUT: {
+        label: "Activar APLAZO como método de pago",
+        blurb: "Lo puedes hacer tú desde el panel de VTEX",
+        steps: [
+          {id:"vtex_open_providers",img:"img/vtex_open_providers.jpg",t:"Entra a Providers",
+           i:"Inicia sesión en tu panel de VTEX y ve a Store Settings, luego Payment, y luego Providers.",
+           d:"Estás viendo la lista de proveedores de pago de tu tienda",cred:false},
+
+          {id:"vtex_new_provider",img:"img/vtex_new_provider.jpg",t:"Agrega APLAZO como proveedor",
+           i:"Da clic en New Provider, arriba a la derecha. En el buscador escribe aplazo y selecciónalo de la lista.",
+           d:"Se abre la pantalla de configuración del proveedor aplazo",cred:false},
+
+          {id:"vtex_enter_credentials",img:"img/vtex_enter_credentials.jpg",t:"Ingresa tu Merchant ID y Api secret (tu API Token)",
+           i:"Llena los dos campos de Provider Fields. En Merchant ID va tu Merchant ID, y en Api secret va tu API Token: es el mismo valor, en VTEX el campo solo tiene otro nombre.",
+           d:"Los dos campos tienen tus credenciales completas",cred:true,
+           br:"If the merchant does not have credentials, escalate to the APLAZO team. The assistant does not issue them."},
+
+          {id:"vtex_test_mode_off",img:"img/vtex_test_mode_off.jpg",t:"Desmarca Enable test mode",
+           i:"En la sección Payment Control hay una casilla que dice Enable test mode, y viene marcada. Desmárcala. Si la dejas activa, APLAZO aparece en tu tienda pero ninguna compra es real, y además tus clientes ven opciones de pago de prueba.",
+           d:"La casilla Enable test mode está desmarcada",cred:false},
+
+          {id:"vtex_save_provider",img:"img/vtex_save_provider.jpg",t:"Guarda y confirma",
+           i:"Da clic en Save, arriba a la derecha. Regresa a la lista de Providers y confirma que aplazo aparezca ahí.",
+           d:"aplazo aparece en tu lista de proveedores de pago",cred:false},
+
+          {id:"vtex_add_condition",img:"img/vtex_add_condition.jpg",t:"Crea la condición de pago",
+           i:"Ve a Store Settings, luego Payment, y luego Settings. Da clic en el botón verde con el signo de más para agregar una nueva condición de pago.",
+           d:"Se abre la galería de métodos de pago disponibles",cred:false},
+
+          {id:"vtex_select_aplazo_payment",img:"img/vtex_select_aplazo_payment.jpg",t:"Elige Aplazo Payment",
+           i:"En la galería busca Aplazo Payment y da clic.",
+           d:"Se abre la configuración de la condición de pago de APLAZO",cred:false},
+
+          {id:"vtex_activate_condition",img:"img/vtex_activate_condition.jpg",t:"Ponlo en Active y guarda",
+           i:"Cambia el interruptor de Status a Active y da clic en Save. Los cambios pueden tardar hasta diez minutos en reflejarse, así que si no lo ves de inmediato en tu tienda, espera un poco antes de volver a intentar.",
+           d:"El status dice Active y guardaste los cambios",cred:false,
+           br:"If it does not appear after ten minutes, check vtex_test_mode_off and vtex_save_provider, then escalate."}
+        ]
+      },
+      WIDGET_IO: {
+        label: "Mostrar el banner en VTEX IO",
+        blurb: "Necesita a alguien con acceso técnico a tu tienda",
+        steps: [
+          {id:"vtex_io_warn",t:"Antes de empezar: esto necesita a un desarrollador",
+           i:"Este flujo se hace desde la terminal, con la línea de comandos de VTEX, y requiere editar el tema de tu tienda. No es algo que se resuelva desde el panel de administración. Si no tienes a alguien técnico disponible, agenda una sesión de integración y lo vemos juntos.",
+           d:"Tienes a alguien con acceso a la terminal y al tema de la tienda, o decidiste agendar",cred:false,
+           br:"If the merchant has no technical person available, escalate and stop here."},
+
+          {id:"vtex_io_install",t:"Instala los componentes de APLAZO",
+           i:"Desde la terminal, con la sesión iniciada en la cuenta de VTEX correcta, ejecuta el comando que instala los componentes de APLAZO. El comando exacto está en la documentación técnica de APLAZO.",
+           d:"El comando termina sin errores y la app queda instalada en la cuenta",cred:false},
+
+          {id:"vtex_io_dependency",t:"Agrega la dependencia al tema",
+           i:"Agrega los componentes de APLAZO a las dependencias peer del store-theme de la tienda.",
+           d:"La dependencia está declarada en el tema",cred:false},
+
+          {id:"vtex_io_block",t:"Declara el bloque en la página de producto",
+           i:"Coloca el bloque aplazo-placement en la plantilla de página de producto, la que VTEX llama store.product. Ese bloque es el que muestra el mensaje con el monto y el plazo, incluso antes de que el cliente agregue el producto al carrito.",
+           d:"El bloque está declarado en la plantilla de producto",cred:false},
+
+          {id:"vtex_io_settings",img:"img/vtex_io_settings.jpg",t:"Configura la app",
+           i:"En el panel de administración entra a Apps y luego a Mis Apps, y da clic en el recuadro de Aplazo para definir los ajustes.",
+           d:"El banner se ve en una página de producto de tu tienda",cred:false,
+           br:"If the banner does not render after publishing, escalate to the APLAZO team."}
+        ]
+      },
+      WIDGET_CMS: {
+        label: "Mostrar el banner en VTEX CMS",
+        blurb: "Para tiendas con CMS, se hace con Google Tag Manager",
+        steps: [
+          {id:"vtex_cms_warn",t:"Antes de empezar: vas a necesitar acceso a Tag Manager",
+           i:"Este flujo aplica si tu tienda usa VTEX CMS en lugar de VTEX IO, y se hace desde tu cuenta de Google Tag Manager. Si no sabes cuál de las dos usa tu tienda, o no tienes acceso a Tag Manager, agenda una sesión y lo revisamos.",
+           d:"Sabes que tu tienda usa VTEX CMS y tienes acceso a Tag Manager",cred:false,
+           br:"If the merchant is unsure which VTEX version the store uses, escalate rather than guess."},
+
+          {id:"vtex_cms_download",t:"Descarga el contenedor de APLAZO",
+           i:"Descarga el archivo JSON del contenedor que te comparte APLAZO. Ese archivo trae las etiquetas y los disparadores que hacen funcionar el banner.",
+           d:"Tienes el archivo JSON descargado en tu computadora",cred:false},
+
+          {id:"vtex_cms_import",t:"Impórtalo en Tag Manager",
+           i:"En tu cuenta de Google Tag Manager entra a Administrador y luego a Importar contenedor. Sube el archivo JSON y elige el espacio de trabajo donde lo quieres importar.",
+           d:"Tag Manager muestra la vista previa con las etiquetas y disparadores que se van a agregar",cred:false},
+
+          {id:"vtex_cms_publish",t:"Confirma y publica",
+           i:"Revisa la vista previa, da clic en Confirmar, y publica los cambios en Tag Manager. Hasta que publiques, el banner no se ve en tu tienda.",
+           d:"Los cambios están publicados y el banner se ve en una página de producto",cred:false,
+           br:"If the banner does not appear after publishing, escalate to the APLAZO team."}
+        ]
+      }
+    },
+    qa: [
+      ["¿Dónde consigo mi Merchant ID y mi API Token?","Se generan para tu negocio cuando tu cuenta queda habilitada técnicamente, y el equipo de APLAZO te los entrega. Si no los tienes, te puedo conectar con el equipo para que te los manden."],
+      ["La pantalla me pide un Api secret pero a mí me dieron un API Token. ¿Son lo mismo?","Sí. En VTEX el campo se llama Api secret y ahí va tu API Token. Es el mismo valor, solo cambia el nombre del campo."],
+      ["Activé todo pero APLAZO no aparece en mi tienda.","Primero espera diez minutos: VTEX tarda en aplicar los cambios de condiciones de pago. Si después de eso sigue sin verse, revisa que la casilla Enable test mode esté desmarcada y que el status de la condición diga Active. Si aun así no aparece, lo escalo."],
+      ["¿Qué pasa si dejo marcada la casilla Enable test mode?","APLAZO aparece en tu tienda pero ninguna compra es real, y tus clientes pueden ver opciones de pago de prueba. Viene marcada por defecto, así que vale la pena revisarla dos veces."],
+      ["¿Cuánto tardan en aplicarse los cambios?","Hasta diez minutos. Si acabas de guardar y no lo ves, espera antes de volver a configurar: cambiar cosas a medias suele complicar más."],
+      ["¿Cuál es la diferencia entre el método de pago y el banner?","El método de pago permite que tus clientes paguen con APLAZO al momento de comprar. El banner es el mensaje que aparece en tus páginas de producto para que sepan que pueden hacerlo antes de llegar ahí. Son dos configuraciones distintas."],
+      ["¿Puedo poner el banner yo solo?","En VTEX el banner necesita acceso técnico: o la terminal de VTEX, o Google Tag Manager, según cómo esté hecha tu tienda. El método de pago sí lo puedes hacer tú desde el panel. Para el banner, lo más práctico es agendar una sesión."],
+      ["¿Cómo sé si mi tienda usa VTEX IO o VTEX CMS?","No es algo que se vea a simple vista desde el panel. Lo puede confirmar quien haya desarrollado tu tienda, o lo revisamos en una sesión de integración."],
+      ["¿Alguien de APLAZO puede hacerlo por mí?","Sí. Si lo prefieres, puedes agendar una sesión de integración y lo revisamos juntos."],
+      ["¿En cuánto tiempo voy a poder vender con APLAZO?","La configuración del método de pago toma minutos, más diez que tarda VTEX en aplicarla. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
+      ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta, no yo. Te puedo conectar con esa persona."]
+    ]
   }
 };
 
@@ -403,6 +510,13 @@ const KB = {
 //    modelo controlara el avance, la métrica de abandono por paso sería
 //    tan confiable como el modelo, que es justo lo que no queremos.
 // ===========================================================================
+const INTRO_FLUJOS = {
+  SHOPIFY: 'Necesitas las dos primeras para vender con APLAZO. La tercera solo si la app del ' +
+           'banner no funciona con el diseño de tu tienda, lo que Shopify llama tu tema.',
+  VTEX:    'Empieza por el método de pago: ese lo puedes hacer tú desde el panel. El banner ' +
+           'depende de cómo esté hecha tu tienda, y las dos opciones necesitan acceso técnico.'
+};
+
 const CALENDLY = 'https://calendly.com/d/dm3-532-n9f/integracion-con-aplazo';
 
 // Pega aquí la dirección que te da Apps Script al publicar el backend.
@@ -658,6 +772,7 @@ function renderStart(){
     <div class="grid" ${S.merchant ? '' : 'style="opacity:.35;pointer-events:none"'}>
       <button class="card" data-p="SHOPIFY"><b>Shopify</b><span>Disponible</span></button>
       <button class="card" data-p="WOO"><b>WooCommerce</b><span>Disponible</span></button>
+      <button class="card" data-p="VTEX"><b>VTEX</b><span>Disponible</span></button>
       <button class="card" disabled><b>Tiendanube</b><span>Próximamente</span></button>
       <button class="card" disabled><b>Otra plataforma</b><span>Próximamente</span></button>
     </div></div>`;
@@ -699,8 +814,7 @@ function renderFlowPick(){
   const el = document.getElementById('screen');
   el.innerHTML = `<div class="start">
     <h1>¿Qué quieres hacer?</h1>
-    <p>Necesitas las dos primeras para vender con APLAZO. La tercera solo si la app del banner
-       no funciona con el diseño de tu tienda, lo que Shopify llama tu tema.</p>
+    <p>${INTRO_FLUJOS[S.platform] || 'Elige por dónde quieres empezar.'}</p>
     <div class="grid">${Object.keys(flows).map(k=>
       `<button class="card" data-f="${k}"><b>${flows[k].label}</b><span>${flows[k].blurb}</span></button>`
     ).join('')}</div></div>`;
