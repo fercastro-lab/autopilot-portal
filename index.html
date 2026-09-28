@@ -22,12 +22,16 @@
   html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:Manrope,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1120px;margin:0 auto;padding:1.2rem 1rem 3rem}
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    min-height:100%;display:flex;flex-direction:column}
+  .wrap{width:100%;max-width:1400px;margin:0 auto;padding:1.1rem 1.1rem 1.6rem;
+    flex:1;display:flex;flex-direction:column;min-height:0}
 
 
   .app{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);
-    box-shadow:0 1px 2px rgba(6,6,6,.04),0 8px 28px rgba(6,6,6,.06)}
+    box-shadow:0 1px 2px rgba(6,6,6,.04),0 8px 28px rgba(6,6,6,.06);
+    flex:1;display:flex;flex-direction:column;min-height:0}
+  #screen{flex:1;display:flex;flex-direction:column;min-height:0}
   header.bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;
     padding:.8rem 1.1rem;border-bottom:1px solid var(--line)}
   .logo{display:inline-flex;align-items:center;height:30px}
@@ -38,51 +42,58 @@
   .pill.linky{cursor:pointer;border:none;font-family:inherit}
 
   /* ---------- Pantalla inicial ---------- */
-  .start{padding:2.2rem 1.4rem 2.6rem;text-align:center}
-  .start h1{font-size:1.55rem;font-weight:800;margin:0 0 .4rem;letter-spacing:-.02em}
-  .start p{color:var(--muted);margin:0 auto 1.6rem;max-width:34rem}
-  .idbox{display:flex;gap:.5rem;max-width:420px;margin:0 auto 1.6rem}
-  .idbox input{flex:1;font-family:inherit;font-size:.9rem;padding:.65rem .95rem;
+  .start{padding:2rem 1.4rem;text-align:center;flex:1;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    max-width:760px;margin:0 auto;width:100%}
+  .start h1{font-size:clamp(1.7rem,3.2vw,2.5rem);font-weight:800;margin:0 0 .5rem;letter-spacing:-.025em;line-height:1.15}
+  .start p{color:var(--muted);margin:0 auto 1.8rem;max-width:36rem;font-size:1.05rem}
+  .idbox{display:flex;gap:.5rem;width:100%;max-width:480px;margin:0 auto 1.8rem}
+  .idbox input{flex:1;font-family:inherit;font-size:1rem;padding:.8rem 1.1rem;
     border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text);min-width:0}
   .hola{font-weight:700;color:var(--text)!important;margin-bottom:1.2rem!important}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem;
-    max-width:640px;margin:0 auto}
-  .card{border:1px solid var(--line);border-radius:12px;padding:1rem;text-align:left;
-    background:var(--surface);cursor:pointer;font-family:inherit;font-size:.9rem;color:var(--text);
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;
+    width:100%;max-width:720px;margin:0 auto}
+  .card{border:1px solid var(--line);border-radius:12px;padding:1.15rem 1.1rem;text-align:left;
+    background:var(--surface);cursor:pointer;font-family:inherit;font-size:.95rem;color:var(--text);
     transition:border-color .12s ease}
   .card:hover:not(:disabled){border-color:var(--aqua)}
   .card:disabled{opacity:.45;cursor:not-allowed}
-  .card b{display:block;font-weight:800;margin-bottom:.15rem}
+  .card b{display:block;font-weight:800;margin-bottom:.2rem;font-size:1.05rem}
   .card span{font-size:.8rem;color:var(--muted)}
 
   /* ---------- Layout de trabajo ---------- */
-  .layout{display:grid;grid-template-columns:248px 1fr;min-height:540px}
-  @media (max-width:820px){.layout{grid-template-columns:1fr}}
-  .rail{border-right:1px solid var(--line);padding:1.1rem .9rem}
+  .layout{display:grid;grid-template-columns:290px 1fr;flex:1;min-height:0}
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr}
+    .main{padding:1.1rem 1rem}
+    .wrap{padding:.7rem .7rem 1rem}
+  }
+  .rail{border-right:1px solid var(--line);padding:1.5rem 1.1rem;overflow-y:auto}
   @media (max-width:820px){.rail{border-right:none;border-bottom:1px solid var(--line)}}
   .rail h2{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
     margin:0 0 .15rem;font-weight:800}
-  .rail .fname{font-size:.92rem;font-weight:700;margin:0 0 .9rem}
+  .rail .fname{font-size:1rem;font-weight:700;margin:0 0 1rem}
   .progress{height:5px;background:var(--frame);border-radius:999px;overflow:hidden;margin-bottom:1rem}
   .progress i{display:block;height:100%;background:var(--aqua);border-radius:999px;
     width:0;transition:width .3s ease}
   ol.steps{list-style:none;margin:0;padding:0}
-  ol.steps li{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem .5rem;
-    border-radius:8px;font-size:.82rem;color:var(--muted)}
+  ol.steps li{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .55rem;
+    border-radius:8px;font-size:.88rem;color:var(--muted)}
   ol.steps li .dot{flex:0 0 18px;height:18px;border-radius:50%;margin-top:.1rem;
     border:2px solid var(--line);display:grid;place-items:center;font-size:.6rem;font-weight:800}
   ol.steps li.done .dot{background:var(--aqua);border-color:var(--aqua);color:var(--black)}
   ol.steps li.now{background:var(--frame);color:var(--text);font-weight:700}
   ol.steps li.now .dot{border-color:var(--aqua);border-width:3px}
 
-  .main{padding:1.3rem 1.25rem 1.1rem;display:flex;flex-direction:column;gap:.95rem;min-width:0}
-  .stepcard{border:1px solid var(--line);border-radius:12px;padding:1.05rem 1.1rem}
+  .main{padding:1.6rem 1.7rem 1.3rem;display:flex;flex-direction:column;gap:1.05rem;
+    min-width:0;overflow-y:auto}
+  .stepcard{border:1px solid var(--line);border-radius:12px;padding:1.25rem 1.3rem}
   .kicker{font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
     color:var(--core);margin-bottom:.3rem}
-  .stepcard h3{margin:0 0 .5rem;font-size:1.14rem;font-weight:800;letter-spacing:-.01em}
+  .stepcard h3{margin:0 0 .55rem;font-size:1.35rem;font-weight:800;letter-spacing:-.015em}
   .stepcard p.instr{margin:0 0 .85rem}
-  .stepcard img.shot{display:block;width:100%;height:auto;border:1px solid var(--line);
-    border-radius:8px;margin:0 0 .9rem;background:var(--frame)}
+  .stepcard img.shot{display:block;width:100%;max-width:640px;height:auto;
+    border:1px solid var(--line);border-radius:8px;margin:0 0 .95rem;background:var(--frame)}
   .check{background:var(--frame);border-radius:8px;padding:.65rem .8rem;font-size:.84rem;
     display:flex;gap:.55rem;align-items:flex-start}
   .check .tick{flex:0 0 15px;height:15px;border-radius:4px;background:var(--aqua);margin-top:.2rem}
@@ -107,9 +118,9 @@
   .chat{border-top:1px solid var(--line);padding-top:.9rem;display:flex;flex-direction:column;min-height:0}
   .chat h4{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
     margin:0 0 .6rem;font-weight:800}
-  .log{max-height:290px;overflow-y:auto;padding-right:.2rem}
+  .log{max-height:340px;overflow-y:auto;padding-right:.3rem}
   .msg{display:flex;margin-bottom:.55rem}
-  .msg .bub{max-width:80%;padding:.58rem .82rem;border-radius:14px;font-size:.87rem;
+  .msg .bub{max-width:78%;padding:.65rem .9rem;border-radius:14px;font-size:.92rem;
     white-space:pre-wrap;word-wrap:break-word}
   .msg.bot .bub{background:var(--frame);border-bottom-left-radius:4px}
   .msg.me{justify-content:flex-end}
@@ -600,8 +611,8 @@ function renderWork(){
         ${st.img ? `<img class="shot" src="${st.img}" alt="Cómo se ve este paso" loading="lazy">` : ''}
         <div class="check"><span class="tick"></span>
           <span><b>Ya quedó cuando</b> ${st.d}</span></div>
-        ${st.cred ? `<div class="cred"><b>Vas a necesitar tus credenciales</b> En esta versión el
-          asistente no las entrega: si no las tienes, pide hablar con una persona</div>` : ''}
+        ${st.cred ? `<div class="cred"><b>Vas a necesitar tus credenciales</b> Si no las tienes a la mano,
+          puedes agendar una sesión de integración con el botón de abajo</div>` : ''}
       </div>
       <div class="ask">
         <p class="aq">${S.idx===n-1 ? '¿Ya pasó eso?' : '¿Ya lo hiciste?'}</p>
