@@ -143,14 +143,14 @@
   }
 
   /* ---------- Pantalla de cierre ---------- */
-  .done{flex:1;overflow-y:auto;padding:2.2rem 1.4rem 2.6rem;text-align:center;
+  .finish{flex:1;overflow-y:auto;padding:2.2rem 1.4rem 2.6rem;text-align:center;
     max-width:820px;margin:0 auto;width:100%}
   .tada{margin-bottom:1.8rem}
   .badge{width:64px;height:64px;border-radius:50%;background:var(--aqua);color:var(--black);
     display:grid;place-items:center;font-size:2rem;font-weight:800;margin:0 auto 1rem;
     box-shadow:0 0 0 10px rgba(71,224,244,.18)}
-  .done h1{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin:0 0 .5rem;letter-spacing:-.025em}
-  .done .sub{color:var(--muted);margin:0 auto;max-width:44rem;font-size:1.02rem}
+  .finish h1{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin:0 0 .5rem;letter-spacing:-.025em}
+  .finish .sub{color:var(--muted);margin:0 auto;max-width:44rem;font-size:1.02rem}
 
   /* La valoración es lo que más nos interesa que contesten, así que se ve */
   .rate{border:2px solid var(--aqua);border-radius:16px;padding:1.6rem 1.4rem;
@@ -171,8 +171,8 @@
 
   .nextup{margin-bottom:1.4rem}
   .nextup .nu{font-weight:800;font-size:.95rem;margin:0 0 .8rem;color:var(--text)}
-  .done .cal{font-size:.9rem;color:var(--muted)}
-  .done .cal .btn-link{margin-left:.5rem}
+  .finish .cal{font-size:.9rem;color:var(--muted)}
+  .finish .cal .btn-link{margin-left:.5rem}
 
 </style>
 </head>
@@ -313,6 +313,85 @@ const KB = {
       ["Shopify me pide permisos para ver datos personales y datos de mi tienda. ¿Es normal?","Sí, es la pantalla estándar de Shopify para cualquier app. Muestra a qué datos necesita acceso antes de instalarla."],
       ["Ya instalé la app pero no la encuentro. ¿Dónde quedó?","En tu panel de Shopify, en la sección Apps. Ahí aparecen todas las apps instaladas."],
       ["El botón en la App Store dice No compatible y no me deja instalar.","Eso significa que alguna configuración de tu tienda no cumple los requisitos de la app. No es algo que se resuelva desde aquí, así que lo escalo para que revisen tu caso."]
+    ]
+  },
+  WOO: {
+    label: "WooCommerce",
+    flows: {
+      CHECKOUT: {
+        label: "Instalar APLAZO en tu tienda",
+        blurb: "Método de pago y banner, todo en un solo flujo",
+        steps: [
+          {id:"woo_open_admin",t:"Entra al panel de tu tienda",
+           i:"Ingresa al panel de administración de WordPress, el que normalmente está en tudominio.com/wp-admin.",
+           d:"Estás dentro del panel de administración de tu tienda",cred:false},
+
+          {id:"woo_plugins_add_new",img:"img/woo_plugins_add_new.jpg",t:"Ve a Plugins y da clic en Añadir nuevo",
+           i:"En el menú de la izquierda entra a Plugins, y luego da clic en Añadir nuevo, arriba de la lista. Si al dar clic en Plugins se abre un submenú, la opción se llama Agregar nuevo plugin.",
+           d:"Estás en la pantalla para agregar plugins, con un buscador arriba a la derecha",cred:false},
+
+          {id:"woo_search_install",img:"img/woo_search_install.jpg",t:"Busca APLAZO e instálalo",
+           i:"En el buscador escribe Aplazo. Cuando aparezca la tarjeta de Aplazo Payment Gateway, da clic en Instalar ahora y espera a que termine.",
+           d:"El botón cambia de Instalar ahora a Activar",cred:false,
+           br:"Si no aparece en los resultados, escalate: puede ser una versión de WordPress incompatible"},
+
+          {id:"woo_activate_plugin",t:"Activa el plugin",
+           i:"Da clic en Activar.",
+           d:"El plugin aparece en tu lista de Plugins instalados",cred:false},
+
+          {id:"woo_open_config",img:"img/woo_open_config.jpg",t:"Abre la configuración del plugin",
+           i:"En Plugins instalados busca el plugin y da clic en Configure, debajo de su nombre. Puede aparecer como Aplazo Payment Gateway o como Pasarela de Pago Aplazo, así que búscalo por orden alfabético.",
+           d:"Se abre la pantalla de configuración de APLAZO dentro de Ajustes, Pagos",cred:false},
+
+          {id:"woo_enable_checkbox",t:"Verifica que la casilla Enable esté marcada",
+           i:"Dentro de la configuración, asegúrate de que la casilla Enable esté palomeada. Si no lo está, APLAZO no se va a mostrar en tu checkout.",
+           d:"La casilla Enable está marcada",cred:false},
+
+          {id:"woo_enter_credentials",img:"img/woo_enter_credentials.jpg",t:"Ingresa tu Merchant ID y API Token",
+           i:"Llena los campos Merchant ID y API Token con las credenciales de tu negocio. Copia y pega cada valor completo, sin espacios al inicio ni al final.",
+           d:"Los dos campos tienen tus credenciales completas",cred:true,
+           br:"If the merchant does not have credentials, escalate to the APLAZO team. The assistant does not issue them."},
+
+          {id:"woo_set_language",img:"img/woo_set_language.jpg",t:"Cambia el idioma a Español",
+           i:"En el campo Idioma selecciona Español. Viene en inglés por defecto, así que si no lo cambias tus clientes van a ver los textos de APLAZO en inglés.",
+           d:"El campo Idioma dice Español",cred:false},
+
+          {id:"woo_set_environment",img:"img/woo_set_environment.jpg",t:"Cambia el ambiente a Producción",
+           i:"En Select the Aplazo environment elige Producción. Este es el paso más importante de toda la instalación: el campo viene en development por defecto, y si lo dejas así APLAZO se va a ver en tu checkout pero ninguna compra va a ser real.",
+           d:"El campo dice Producción, no development",cred:false},
+
+          {id:"woo_show_widget",img:"img/woo_show_widget.jpg",t:"Activa el banner en tus productos",
+           i:"En Show widget on Product Detail Page selecciona Yes. Con esto el mensaje de pago en quincenas aparece en tus páginas de producto, para que tus clientes sepan que pueden pagar así antes de llegar al checkout.",
+           d:"El campo dice Yes",cred:false},
+
+          {id:"woo_disable_debug",t:"Desactiva la casilla Debug",
+           i:"Hasta abajo de la página, desmarca la casilla Debug.",
+           d:"La casilla Debug está desmarcada",cred:false},
+
+          {id:"woo_save",t:"Guarda los cambios",
+           i:"Da clic en Finalizar configuración para aplicar todo.",
+           d:"Los cambios quedan guardados y la pantalla lo confirma",cred:false},
+
+          {id:"woo_verify",t:"Verifica en tu tienda",
+           i:"Abre tu tienda como si fueras un cliente. Revisa dos cosas: que en una página de producto se vea el mensaje de pago en quincenas, y que al llegar al paso de pago aparezca APLAZO como opción.",
+           d:"Ves el mensaje en el producto y APLAZO en el checkout",cred:false,
+           br:"If APLAZO does not appear, check woo_enable_checkbox and woo_set_environment first, then escalate."}
+        ]
+      }
+    },
+    qa: [
+      ["¿Dónde consigo mi Merchant ID y mi API Token?","Se generan para tu negocio cuando tu cuenta queda habilitada técnicamente, y el equipo de APLAZO te los entrega. Si no los tienes, te puedo conectar con el equipo para que te los manden."],
+      ["Instalé el plugin pero APLAZO no aparece en mi checkout.","Revisa tres cosas, en este orden. Que la casilla Enable esté marcada. Que el ambiente diga Producción y no development. Y que hayas guardado con Finalizar configuración. Si después de eso sigue sin aparecer, lo escalo."],
+      ["¿Qué pasa si dejo el ambiente en development?","APLAZO se va a ver en tu checkout, pero ninguna compra va a ser real. Es el error más común en WooCommerce, así que vale la pena revisarlo dos veces."],
+      ["No encuentro el plugin en la lista de instalados.","Puede aparecer con dos nombres distintos: Aplazo Payment Gateway o Pasarela de Pago Aplazo. La lista está en orden alfabético, así que búscalo en la A o en la P."],
+      ["No me aparece APLAZO en el buscador de plugins.","Suele ser por la versión de WordPress de tu tienda. No es algo que se resuelva desde aquí, así que lo escalo para que el equipo revise tu caso."],
+      ["¿Cómo hago que se vea el banner en mis productos?","En la misma pantalla de configuración, en Show widget on Product Detail Page, selecciona Yes. En WooCommerce no necesitas instalar nada aparte: es un campo de la misma configuración."],
+      ["Los textos de APLAZO me salen en inglés.","El campo Idioma viene en inglés por defecto. Cámbialo a Español en la configuración del plugin y guarda."],
+      ["¿Necesito tener WooCommerce instalado antes?","Sí. El plugin de APLAZO funciona sobre WooCommerce, así que tu tienda ya debe tenerlo activo."],
+      ["¿Qué es la casilla Debug y la dejo activada?","Sirve para que el equipo técnico revise errores. Para una tienda que va a vender, se deja desactivada."],
+      ["¿Alguien de APLAZO puede hacerlo por mí?","Sí. Si lo prefieres, puedes agendar una sesión de integración y lo revisamos juntos. Esta guía existe para que no tengas que esperar una cita, pero la decisión es tuya."],
+      ["¿En cuánto tiempo voy a poder vender con APLAZO?","La instalación en sí toma minutos. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
+      ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta, no yo. Te puedo conectar con esa persona."]
     ]
   }
 };
@@ -578,7 +657,7 @@ function renderStart(){
     ${S.merchant ? `<p class="hola">Hola ${S.merchant}, ¿en qué plataforma está tu tienda?</p>` : ''}
     <div class="grid" ${S.merchant ? '' : 'style="opacity:.35;pointer-events:none"'}>
       <button class="card" data-p="SHOPIFY"><b>Shopify</b><span>Disponible</span></button>
-      <button class="card" disabled><b>WooCommerce</b><span>Próximamente</span></button>
+      <button class="card" data-p="WOO"><b>WooCommerce</b><span>Disponible</span></button>
       <button class="card" disabled><b>Tiendanube</b><span>Próximamente</span></button>
       <button class="card" disabled><b>Otra plataforma</b><span>Próximamente</span></button>
     </div></div>`;
@@ -605,6 +684,18 @@ function renderStart(){
 
 function renderFlowPick(){
   const flows = KB[S.platform].flows;
+
+  // Si la plataforma tiene un solo flujo, no tiene sentido hacer elegir.
+  // WooCommerce es así: checkout y banner son la misma instalación.
+  const llaves = Object.keys(flows);
+  if (llaves.length === 1){
+    S.flow = llaves[0]; S.idx = 0;
+    logEvent('flow_started',{flow:S.flow}); logEvent('step_entered');
+    render();
+    addMsg('bot','Aquí estoy por si algo no cuadra. Sigue los pasos y pregúntame lo que sea');
+    return;
+  }
+
   const el = document.getElementById('screen');
   el.innerHTML = `<div class="start">
     <h1>¿Qué quieres hacer?</h1>
@@ -731,7 +822,7 @@ function renderDone(){
     siguiente = 'Ya quedó.';
   }
 
-  el.innerHTML = `<div class="done">
+  el.innerHTML = `<div class="finish">
     <div class="tada">
       <div class="badge">✓</div>
       <h1>${S.merchant ? S.merchant + ', quedó listo' : 'Quedó listo'}</h1>
