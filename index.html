@@ -568,6 +568,70 @@ const KB = {
       ["¿En cuánto tiempo voy a poder vender con APLAZO?","La instalación en sí toma minutos. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
       ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta en APLAZO. Pregúntale directamente a esa persona."]
     ]
+  },
+  PRESTA: {
+    label: "PrestaShop",
+    flows: {
+      CHECKOUT: {
+        label: "Instalar APLAZO en tu tienda",
+        blurb: "Método de pago y banner, todo en un solo flujo",
+        steps: [
+          {id:"presta_open_admin",t:"Entra al panel de tu tienda",
+           i:"Ingresa al panel de administración de tu tienda PrestaShop con tu usuario de administrador.",
+           d:"Estás dentro del panel de administración",cred:false},
+
+          {id:"presta_open_marketplace",img:"img/presta_open_marketplace.jpg",t:"Busca APLAZO en el Marketplace",
+           i:"En el menú de la izquierda entra a Módulos y luego a Marketplace. En el buscador escribe aplazo. Debe aparecer el módulo Aplazo - Pay in 5 installments without a credit card.",
+           d:"Ves el módulo de APLAZO en los resultados",cred:false,
+           br:"If the module does not appear in the Marketplace, the merchant can upload the zip file from Modules > Module Manager > Upload a module instead. The zip version must come from the APLAZO team."},
+
+          {id:"presta_install",t:"Da clic en Instalar",
+           i:"En la tarjeta del módulo da clic en Instalar, o Install si tu panel está en inglés, y espera a que termine.",
+           d:"La tarjeta muestra la etiqueta Installed y aparece el botón Configurar",cred:false},
+
+          {id:"presta_configure",img:"img/presta_configure.jpg",t:"Abre la configuración",
+           i:"Da clic en Configurar, o Configure, para abrir la pantalla de ajustes de APLAZO.",
+           d:"Ves la pantalla Configure con la sección Settings",cred:false},
+
+          {id:"presta_enter_credentials",img:"img/presta_enter_credentials.jpg",t:"Ingresa tu Merchant ID y API Token",
+           i:"En la sección Settings, llena los campos MERCHANT ID y API TOKEN con tus credenciales. Copia y pega cada valor completo, sin espacios al inicio ni al final.",
+           d:"Los dos campos tienen tus credenciales completas",cred:true,
+           br:"If the merchant does not have credentials, they should book an integration session. The assistant does not issue them."},
+
+          {id:"presta_test_env_off",t:"Apaga Test environment",
+           i:"Justo debajo de las credenciales está el interruptor Test environment. Déjalo apagado. Es el paso más importante de toda la instalación: si queda encendido, APLAZO se ve en tu tienda pero ninguna compra es real. Ojo, algunas guías muestran este interruptor encendido en la imagen de ejemplo. Tú apágalo.",
+           d:"El interruptor Test environment está apagado",cred:false},
+
+          {id:"presta_show_pdp",img:"img/presta_show_pdp.jpg",t:"Activa el banner en tus productos",
+           i:"Enciende el interruptor Show on Product Page. Con esto el mensaje de pago en quincenas aparece en tus páginas de producto, para que tus clientes sepan que pueden pagar así antes de llegar al checkout.",
+           d:"El interruptor Show on Product Page dice Yes",cred:false},
+
+          {id:"presta_show_checkout",img:"img/presta_show_checkout.jpg",t:"Activa APLAZO en el carrito y el checkout",
+           i:"Enciende el interruptor Show on Cart / Checkout. Si queda apagado, tus clientes no ven a APLAZO como opción al pagar.",
+           d:"El interruptor Show on Cart / Checkout dice Yes",cred:false},
+
+          {id:"presta_save",img:"img/presta_save.jpg",t:"Guarda los cambios",
+           i:"Da clic en Guardar, o Save, abajo a la derecha. Aparece un mensaje confirmando que los cambios se guardaron.",
+           d:"Ves el mensaje de que los cambios se guardaron",cred:false},
+
+          {id:"presta_verify",t:"Verifica en tu tienda",
+           i:"Abre tu tienda como si fueras un cliente. Revisa dos cosas: que en una página de producto se vea el mensaje de pago en quincenas, y que al llegar al paso de pago aparezca APLAZO como opción.",
+           d:"Ves el mensaje en el producto y APLAZO en el checkout",cred:false,
+           br:"If APLAZO does not appear, check presta_test_env_off and presta_show_checkout first. If it still does not appear, suggest booking an integration session."}
+        ]
+      }
+    },
+    qa: [
+      ["¿Dónde consigo mi Merchant ID y mi API Token?","Se generan para tu negocio cuando tu cuenta queda habilitada técnicamente, y el equipo de APLAZO te los entrega. Si no los tienes, agenda una sesión de integración y el equipo de APLAZO te ayuda a conseguirlos."],
+      ["No encuentro APLAZO en el Marketplace.","También se puede instalar subiendo el archivo del módulo desde Módulos, Administrador de módulos, Subir un módulo. El archivo te lo comparte el equipo de APLAZO, así que agenda una sesión de integración para que te lo envíen y lo revisemos juntos."],
+      ["¿Qué pasa si dejo encendido Test environment?","APLAZO se ve en tu tienda, pero ninguna compra es real. Es el error más fácil de cometer en PrestaShop, así que vale la pena revisarlo dos veces antes de guardar."],
+      ["Instalé todo pero APLAZO no aparece en mi checkout.","Revisa tres cosas, en este orden: que Test environment esté apagado, que Show on Cart / Checkout diga Yes, y que hayas guardado. Si después de eso sigue sin aparecer, agenda una sesión de integración y lo revisamos juntos."],
+      ["¿Cómo hago que se vea el banner en mis productos?","En la misma pantalla de configuración, enciende el interruptor Show on Product Page. En PrestaShop no necesitas instalar nada aparte."],
+      ["Mi panel de PrestaShop está en inglés, ¿cambia algo?","No. Los pasos son los mismos. Los botones cambian de nombre: Instalar es Install, Configurar es Configure y Guardar es Save."],
+      ["¿Alguien de APLAZO puede hacerlo por mí?","Sí. Si lo prefieres, agenda una sesión de integración y lo hacemos juntos. Esta guía existe para que no tengas que esperar una cita, pero la decisión es tuya."],
+      ["¿En cuánto tiempo voy a poder vender con APLAZO?","La instalación en sí toma minutos. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
+      ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta en APLAZO. Pregúntale directamente a esa persona."]
+    ]
   }
 };
 
@@ -908,6 +972,7 @@ function renderStart(){
       <button class="card" data-p="WOO"><b>WooCommerce</b><span>Disponible</span></button>
       <button class="card" data-p="VTEX"><b>VTEX</b><span>Disponible</span></button>
       <button class="card" data-p="TDN"><b>Tiendanube</b><span>Disponible</span></button>
+      <button class="card" data-p="PRESTA"><b>PrestaShop</b><span>Disponible</span></button>
       <button class="card" disabled><b>Otra plataforma</b><span>Próximamente</span></button>
     </div></div>`;
   const go = ()=>{
