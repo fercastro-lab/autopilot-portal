@@ -89,6 +89,14 @@
   .tdot{flex:1;height:4px;border-radius:999px;background:var(--frame)}
   .tdot.done{background:var(--aqua)}
   .tdot.now{background:var(--deep)}
+  .helptag{display:inline-flex;align-items:center;gap:.35rem;font-style:normal;
+    font-size:.72rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;
+    background:var(--volt);color:var(--black);padding:.28rem .65rem;border-radius:999px;
+    white-space:nowrap}
+  .helptag::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--black)}
+  .card-help{border:2px solid var(--volt)}
+  .card .helptag{margin-bottom:.55rem;font-size:.64rem;letter-spacing:.01em;
+    max-width:100%;white-space:normal;line-height:1.25}
   .tcount{font-size:.78rem;font-weight:700;color:var(--muted);white-space:nowrap}
 
   .split{display:grid;grid-template-columns:1fr 400px;flex:1;min-height:0}
@@ -437,6 +445,7 @@ const KB = {
         ]
       },
       WIDGET_IO: {
+        needsHelp: true,
         label: "Mostrar el banner en VTEX IO",
         blurb: "Necesita a alguien con acceso técnico a tu tienda",
         steps: [
@@ -464,6 +473,7 @@ const KB = {
         ]
       },
       WIDGET_CMS: {
+        needsHelp: true,
         label: "Mostrar el banner en VTEX CMS",
         blurb: "Para tiendas con CMS, se hace con Google Tag Manager",
         steps: [
@@ -500,6 +510,64 @@ const KB = {
       ["¿En cuánto tiempo voy a poder vender con APLAZO?","La configuración del método de pago toma minutos, más diez que tarda VTEX en aplicarla. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
       ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta, no yo. Te puedo conectar con esa persona."]
     ]
+  },
+  TDN: {
+    label: "Tiendanube",
+    flows: {
+      CHECKOUT: {
+        label: "Instalar APLAZO en tu tienda",
+        blurb: "Método de pago en tu checkout",
+        steps: [
+          {id:"tdn_open_app_store",t:"Abre APLAZO en la tienda de aplicaciones",
+           i:"Entra a la tienda de aplicaciones de Tiendanube y busca APLAZO. Importante: si ya habías instalado la aplicación antes, desinstálala primero y vuelve a instalarla desde cero. Una instalación vieja es la causa más común de errores.",
+           d:"Estás viendo la ficha de la aplicación de APLAZO",cred:false,
+           br:"If the app was previously installed, the merchant must uninstall it before continuing."},
+
+          {id:"tdn_install_app",img:"img/tdn_install_app.jpg",t:"Da clic en Instalar aplicación",
+           i:"En la ficha de APLAZO, da clic en el botón morado que dice Instalar aplicación.",
+           d:"Tiendanube te pide iniciar sesión, o te lleva directo a los permisos",cred:false},
+
+          {id:"tdn_login",img:"img/tdn_login.jpg",t:"Inicia sesión en tu Tiendanube",
+           i:"Ingresa con el correo o la dirección de tu tienda y la contraseña de tu cuenta de Tiendanube. Son tus datos de Tiendanube, no los de APLAZO.",
+           d:"La sesión queda iniciada",cred:false},
+
+          {id:"tdn_accept_permissions",img:"img/tdn_accept_permissions.jpg",t:"Acepta los permisos",
+           i:"Tiendanube te muestra los datos a los que la aplicación necesita acceso: ver y gestionar datos de tu tienda y de tus clientes. Da clic en Aceptar y empezar a usar.",
+           d:"Aparece la pantalla de credenciales de APLAZO",cred:false},
+
+          {id:"tdn_enter_credentials",img:"img/tdn_enter_credentials.jpg",t:"Ingresa tu Merchant ID y API Token",
+           i:"Llena los dos campos con tus credenciales: Merchant ID en el primero y Api Token en el segundo. Copia y pega cada valor completo, sin espacios al inicio ni al final.",
+           d:"Los dos campos tienen tus credenciales completas",cred:true,
+           br:"If the merchant does not have credentials, escalate to the APLAZO team. The assistant does not issue them."},
+
+          {id:"tdn_save",img:"img/tdn_save.jpg",t:"Guarda los cambios",
+           i:"Da clic en Guardar cambios. Aparece un mensaje confirmando que se guardaron.",
+           d:"Ves el mensaje de que los cambios se guardaron",cred:false},
+
+          {id:"tdn_verify_data",img:"img/tdn_verify_data.jpg",t:"Verifica tus datos",
+           i:"Da clic en Verificar datos, justo debajo de Guardar cambios. Con esto la aplicación revisa que tus credenciales estén bien.",
+           d:"La verificación sale correcta",cred:false,
+           br:"If verification fails, the credentials are wrong: uninstall, reinstall with the correct credentials, and escalate if it fails again."},
+
+          {id:"tdn_verify_checkout",t:"Confirma que aparece en tu checkout",
+           i:"Abre tu tienda como si fueras un cliente, agrega un producto al carrito y llega al paso de pago. APLAZO debe aparecer como opción.",
+           d:"Ves APLAZO como método de pago en tu checkout",cred:false,
+           br:"If APLAZO does not appear, the fix is to uninstall and reinstall the app. Escalate if it still does not appear."}
+        ]
+      }
+    },
+    qa: [
+      ["¿Dónde consigo mi Merchant ID y mi API Token?","Se generan para tu negocio cuando tu cuenta queda habilitada técnicamente, y el equipo de APLAZO te los entrega. Si no los tienes, te puedo conectar con el equipo para que te los manden."],
+      ["APLAZO no aparece como método de pago en mi tienda.","Desinstala la aplicación de tu Tiendanube y vuelve a instalarla desde cero. Es la solución en la mayoría de los casos. Si después de eso sigue sin aparecer, lo escalo."],
+      ["APLAZO me da un error en el checkout.","Casi siempre es que el Merchant ID o el API Token se capturaron mal. Desinstala la aplicación y vuelve a instalarla con las credenciales correctas. Si el error sigue, lo escalo."],
+      ["Ya tenía la aplicación instalada de antes. ¿La uso así?","Mejor desinstálala y vuelve a instalarla desde cero. Las instalaciones viejas son la causa más común de errores en Tiendanube."],
+      ["¿Para qué sirve el botón Verificar datos?","Revisa que tus credenciales sean correctas antes de que tus clientes intenten pagar. Vale la pena darle clic siempre, aunque ya hayas guardado."],
+      ["¿Cómo veo las ventas que se hicieron con APLAZO?","En tu panel de Tiendanube entra a Ventas y luego a Lista de ventas. Al abrir el detalle de cualquier pedido vas a ver el pago con APLAZO y su identificador de transacción."],
+      ["¿Cómo paga un cliente con APLAZO?","En el checkout elige APLAZO, escribe el teléfono de su cuenta, confirma su identidad con un código que le llega al celular, elige cómo pagar y hace su primer pago. Si todo sale bien, regresa a la confirmación de tu pedido."],
+      ["¿Alguien de APLAZO puede hacerlo por mí?","Sí. Si lo prefieres, puedes agendar una sesión de integración y lo revisamos juntos. Esta guía existe para que no tengas que esperar una cita, pero la decisión es tuya."],
+      ["¿En cuánto tiempo voy a poder vender con APLAZO?","La instalación en sí toma minutos. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
+      ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta, no yo. Te puedo conectar con esa persona."]
+    ]
   }
 };
 
@@ -513,8 +581,9 @@ const KB = {
 const INTRO_FLUJOS = {
   SHOPIFY: 'Necesitas las dos primeras para vender con APLAZO. La tercera solo si la app del ' +
            'banner no funciona con el diseño de tu tienda, lo que Shopify llama tu tema.',
-  VTEX:    'Empieza por el método de pago: ese lo puedes hacer tú desde el panel. El banner ' +
-           'depende de cómo esté hecha tu tienda, y las dos opciones necesitan acceso técnico.'
+  VTEX:    'Empieza por el método de pago: ese lo puedes hacer tú desde el panel. Las dos ' +
+           'opciones del banner están marcadas en amarillo porque necesitan a alguien con ' +
+           'acceso técnico a tu tienda.'
 };
 
 const CALENDLY = 'https://calendly.com/d/dm3-532-n9f/integracion-con-aplazo';
@@ -773,7 +842,7 @@ function renderStart(){
       <button class="card" data-p="SHOPIFY"><b>Shopify</b><span>Disponible</span></button>
       <button class="card" data-p="WOO"><b>WooCommerce</b><span>Disponible</span></button>
       <button class="card" data-p="VTEX"><b>VTEX</b><span>Disponible</span></button>
-      <button class="card" disabled><b>Tiendanube</b><span>Próximamente</span></button>
+      <button class="card" data-p="TDN"><b>Tiendanube</b><span>Disponible</span></button>
       <button class="card" disabled><b>Otra plataforma</b><span>Próximamente</span></button>
     </div></div>`;
   const go = ()=>{
@@ -816,7 +885,9 @@ function renderFlowPick(){
     <h1>¿Qué quieres hacer?</h1>
     <p>${INTRO_FLUJOS[S.platform] || 'Elige por dónde quieres empezar.'}</p>
     <div class="grid">${Object.keys(flows).map(k=>
-      `<button class="card" data-f="${k}"><b>${flows[k].label}</b><span>${flows[k].blurb}</span></button>`
+      `<button class="card ${flows[k].needsHelp ? 'card-help' : ''}" data-f="${k}">
+        ${flows[k].needsHelp ? '<em class="helptag">Requiere apoyo técnico</em>' : ''}
+        <b>${flows[k].label}</b><span>${flows[k].blurb}</span></button>`
     ).join('')}</div></div>`;
   el.querySelectorAll('.card[data-f]').forEach(b=>b.onclick=()=>{
    try{
@@ -844,6 +915,7 @@ function renderWork(){
         <div class="tdots">${f.steps.map((x,i)=>
           `<span class="tdot ${i<S.idx?'done':(i===S.idx?'now':'')}" title="${x.t}"></span>`).join('')}</div>
       </div>
+      ${f.needsHelp ? '<em class="helptag">Requiere apoyo técnico</em>' : ''}
       <span class="tcount">Paso ${S.idx+1} de ${n}</span>
     </div>
 
