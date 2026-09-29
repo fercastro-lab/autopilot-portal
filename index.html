@@ -103,7 +103,7 @@
   .side-left{padding:1.4rem 1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
   .side-right{border-left:1px solid var(--line);display:flex;flex-direction:column;
     min-height:0;background:var(--surface)}
-  .chead{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  .chead{display:flex;align-items:center;justify-content:space-between;gap:.4rem .8rem;flex-wrap:wrap;
     padding:.85rem 1.1rem;border-bottom:1px solid var(--line)}
   .chead h4{margin:0;font-size:.9rem;font-weight:800}
   .mini-link{font-size:.78rem;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
@@ -177,6 +177,23 @@
   .rate input{width:100%;font-family:inherit;font-size:.92rem;padding:.7rem 1.1rem;
     border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text)}
 
+  .promo{border-radius:16px;padding:1.5rem 1.6rem;margin:0 auto 1.6rem;max-width:620px;
+    text-align:left;background:var(--deep);color:#fff;position:relative;overflow:hidden}
+  .promo::after{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;
+    border-radius:50%;background:var(--aqua);opacity:.14}
+  .promo .pk{margin:0 0 .35rem;font-size:.7rem;font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--aqua)}
+  .promo .pt{margin:0 0 .5rem;font-size:1.3rem;font-weight:800;letter-spacing:-.015em;color:#fff}
+  .promo .pstat{display:inline-block;margin:0 0 .7rem;padding:.3rem .75rem;border-radius:999px;
+    background:var(--volt);color:var(--black);font-weight:800;font-size:.88rem}
+  .promo .pd{margin:0 0 1.1rem;color:rgba(255,255,255,.86);font-size:.95rem}
+  .promo .pn{margin:-.5rem 0 1.1rem;font-size:.85rem;color:rgba(255,255,255,.65)}
+  .promo .b-primary{background:var(--aqua);color:var(--black);position:relative;z-index:1}
+  /* Variante cuando el banner YA está activo: confirma, no invita a actuar */
+  .promo-ok{background:var(--frame);color:var(--text);border:1px solid var(--line)}
+  .promo-ok::after{display:none}
+  .promo-ok .pk{color:var(--core)}
+  .promo-ok .pd{margin:0;color:var(--text)}
   .nextup{margin-bottom:1.4rem}
   .nextup .nu{font-weight:800;font-size:.95rem;margin:0 0 .8rem;color:var(--text)}
   .finish .cal{font-size:.9rem;color:var(--muted)}
@@ -273,6 +290,7 @@ const KB = {
         ]
       },
       BANNER_CODE: {
+        needsHelp: true,
         label: "Instalar el banner por código",
         blurb: "Solo si la app no funciona con el diseño de tu tienda",
         steps: [
@@ -561,6 +579,7 @@ const KB = {
       ["APLAZO no aparece como método de pago en mi tienda.","Desinstala la aplicación de tu Tiendanube y vuelve a instalarla desde cero. Es la solución en la mayoría de los casos. Si después de eso sigue sin aparecer, agenda una sesión de integración y lo revisamos juntos."],
       ["APLAZO me da un error en el checkout.","Casi siempre es que el Merchant ID o el API Token se capturaron mal. Desinstala la aplicación y vuelve a instalarla con las credenciales correctas. Si el error sigue, agenda una sesión de integración y lo revisamos juntos."],
       ["Ya tenía la aplicación instalada de antes. ¿La uso así?","Mejor desinstálala y vuelve a instalarla desde cero. Las instalaciones viejas son la causa más común de errores en Tiendanube."],
+      ["¿Cómo activo el banner en Tiendanube?","No tienes que hacer nada aparte: en Tiendanube el banner se activa solo al instalar la aplicación de APLAZO y configurar el checkout. Abre cualquier página de producto de tu tienda para verlo."],
       ["¿Para qué sirve el botón Verificar datos?","Revisa que tus credenciales sean correctas antes de que tus clientes intenten pagar. Vale la pena darle clic siempre, aunque ya hayas guardado."],
       ["¿Cómo veo las ventas que se hicieron con APLAZO?","En tu panel de Tiendanube entra a Ventas y luego a Lista de ventas. Al abrir el detalle de cualquier pedido vas a ver el pago con APLAZO y su identificador de transacción."],
       ["¿Cómo paga un cliente con APLAZO?","En el checkout elige APLAZO, escribe el teléfono de su cuenta, confirma su identidad con un código que le llega al celular, elige cómo pagar y hace su primer pago. Si todo sale bien, regresa a la confirmación de tu pedido."],
@@ -713,6 +732,16 @@ const INTRO_FLUJOS = {
   VTEX:    'Empieza por el método de pago: ese lo puedes hacer tú desde el panel. Las dos ' +
            'opciones del banner están marcadas en amarillo porque necesitan a alguien con ' +
            'acceso técnico a tu tienda.'
+};
+
+const DATO_BANNER = 'Genera 34% más ventas, comprobado';
+
+const BANNER = {
+  SHOPIFY: { tipo: 'separado',   flujo: 'BANNER' },
+  VTEX:    { tipo: 'separado',   flujo: null, ayuda: true },   // dos opciones técnicas
+  WOO:     { tipo: 'incluido' },                               // fue un paso del mismo flujo
+  PRESTA:  { tipo: 'incluido' },
+  TDN:     { tipo: 'automatico' }                              // se activa con el checkout
 };
 
 const CALENDLY = 'https://calendly.com/d/dm3-532-n9f/integracion-con-aplazo';
@@ -1073,9 +1102,9 @@ function renderWork(){
 
       <section class="side-right">
         <div class="chead">
-          <h4>¿Te ayudo con algo?</h4>
+          <h4>Asistente de integración</h4>
           <a class="mini-link" id="esc" href="${CALENDLY}" target="_blank" rel="noopener">
-            Agendar sesión</a>
+            Habla con nuestro equipo de integración</a>
         </div>
         <div class="log" id="log">${keep}</div>
         <div class="composer">
@@ -1123,19 +1152,54 @@ function renderWork(){
 function renderDone(){
   const f = KB[S.platform].flows[S.flow];
   const el = document.getElementById('screen');
-  const otros = Object.keys(KB[S.platform].flows).filter(k => k !== S.flow);
+  const cfgB = BANNER[S.platform] || {};
+  const yaEnAviso = (cfgB.tipo === 'separado' && !/BANNER|WIDGET/.test(S.flow)) ? cfgB.flujo : null;
+  const otros = Object.keys(KB[S.platform].flows)
+    .filter(k => k !== S.flow && k !== yaEnAviso);
 
   // El texto de qué sigue cambia según el flujo que acaba de terminar.
   // Antes era una frase genérica pegada sin puntuación.
-  let siguiente;
-  if (S.flow === 'CHECKOUT') {
-    siguiente = 'Tus clientes ya pueden pagar con APLAZO al momento de comprar. ' +
-                'Falta el banner, para que se enteren antes de llegar ahí.';
-  } else if (S.flow === 'BANNER' || S.flow === 'BANNER_CODE') {
+  // Qué decir al terminar depende de cómo se activa el banner en esta
+  // plataforma, y de si el flujo que acaba de terminar ES el del banner.
+  const b = BANNER[S.platform] || {};
+  const esBanner = /BANNER|WIDGET/.test(S.flow);
+  let siguiente = '';
+  let promo = '';
+
+  if (esBanner) {
     siguiente = 'El mensaje de pago en quincenas ya se ve en tus productos. ' +
                 'Si todavía no activas APLAZO como método de pago, ese es el paso que falta.';
-  } else {
-    siguiente = 'Ya quedó.';
+  } else if (b.tipo === 'separado') {
+    siguiente = 'Tus clientes ya pueden pagar con APLAZO al momento de comprar.';
+    const boton = b.flujo
+      ? `<button class="b-primary" id="gobanner">Activar el banner</button>`
+      : `<button class="b-primary" id="gobanner">Ver opciones del banner</button>`;
+    promo = `<div class="promo">
+        <p class="pk">Siguiente paso recomendado</p>
+        <p class="pt">Activa el banner en tus productos</p>
+        <span class="pstat">${DATO_BANNER}</span>
+        <p class="pd">Tus clientes ven que pueden pagar en quincenas antes de llegar al
+          checkout, que es cuando deciden si compran.</p>
+        ${b.ayuda ? '<p class="pn">En VTEX el banner necesita a alguien con acceso técnico a tu tienda.</p>' : ''}
+        ${boton}
+      </div>`;
+  } else if (b.tipo === 'incluido') {
+    siguiente = 'Tus clientes ya pueden pagar con APLAZO al momento de comprar, ' +
+                'y el banner ya se ve en tus productos.';
+    promo = `<div class="promo promo-ok">
+        <p class="pk">Banner activo</p>
+        <span class="pstat">${DATO_BANNER}</span>
+        <p class="pd">Lo activaste en esta misma instalación. Si todavía no lo ves en tus
+          productos, revisa que ese interruptor haya quedado en Yes.</p>
+      </div>`;
+  } else if (b.tipo === 'automatico') {
+    siguiente = 'Tus clientes ya pueden pagar con APLAZO al momento de comprar.';
+    promo = `<div class="promo promo-ok">
+        <p class="pk">Banner activo</p>
+        <span class="pstat">${DATO_BANNER}</span>
+        <p class="pd">En Tiendanube el banner se activa solo, junto con el checkout: no tienes
+          que hacer nada más. Abre una página de producto para verlo.</p>
+      </div>`;
   }
 
   el.innerHTML = `<div class="finish">
@@ -1144,6 +1208,8 @@ function renderDone(){
       <h1>${S.merchant ? S.merchant + ', quedó listo' : 'Quedó listo'}</h1>
       <p class="sub">${siguiente}</p>
     </div>
+
+    ${promo}
 
     ${S.rated ? `<div class="rate rated">
         <p class="rq">Gracias por decirnos</p>
@@ -1162,15 +1228,31 @@ function renderDone(){
     <div class="nextup">
       <p class="nu">¿Qué sigue?</p>
       <div class="grid">
-        ${otros.map(k=>`<button class="card" data-f2="${k}">
-          <b>${KB[S.platform].flows[k].label}</b><span>${KB[S.platform].flows[k].blurb}</span></button>`).join('')}
+        ${otros.map(k=>{ const fl = KB[S.platform].flows[k]; return `<button class="card ${fl.needsHelp?'card-help':''}" data-f2="${k}">
+          ${fl.needsHelp ? '<em class="helptag">Requiere apoyo técnico</em>' : ''}
+          <b>${fl.label}</b><span>${fl.blurb}</span></button>`; }).join('')}
         <button class="card" data-home="1"><b>Volver al inicio</b><span>Elegir otra plataforma</span></button>
       </div>
     </div>
 
-    <p class="cal">¿Quieres revisarlo con el equipo de APLAZO?
-      <a class="btn-link" href="${CALENDLY}" target="_blank" rel="noopener">Agendar una sesión</a></p>
+    <p class="cal">¿Quieres revisarlo con alguien?
+      <a class="btn-link" href="${CALENDLY}" target="_blank" rel="noopener">Habla con nuestro equipo de integración</a></p>
   </div>`;
+
+  const gb = document.getElementById('gobanner');
+  if (gb) gb.onclick = ()=>{
+    const cfg = BANNER[S.platform] || {};
+    logEvent('banner_promo_clicked', { detail: S.platform });
+    S.done = false; S.rated = false; S.idx = 0;
+    if (cfg.flujo) {
+      S.flow = cfg.flujo;
+      logEvent('flow_started',{flow:S.flow}); logEvent('step_entered');
+      render();
+      addMsg('bot','Vamos con el banner. Cualquier duda me dices');
+    } else {
+      S.flow = null; render();      // VTEX: elegir entre sus dos opciones
+    }
+  };
 
   el.querySelectorAll('.ropt').forEach(b=>b.onclick=()=>{
     const comentario = (document.getElementById('rcomment').value || '').trim();
