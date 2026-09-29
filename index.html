@@ -47,6 +47,12 @@
     max-width:760px;margin:0 auto;width:100%}
   .start h1{font-size:clamp(1.7rem,3.2vw,2.5rem);font-weight:800;margin:0 0 .5rem;letter-spacing:-.025em;line-height:1.15}
   .start p{color:var(--muted);margin:0 auto 1.8rem;max-width:36rem;font-size:1.05rem}
+  .resume{width:100%;max-width:560px;margin:0 auto 2rem;padding:1.3rem 1.4rem;border-radius:14px;
+    border:2px solid var(--aqua);background:rgba(71,224,244,.08);text-align:center}
+  .resume .rk{margin:0 0 .3rem!important;font-size:.72rem;font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--core)!important}
+  .resume .rt{margin:0 0 .25rem!important;font-weight:800;color:var(--text)!important;font-size:1.05rem}
+  .resume .rd{margin:0 0 1rem!important;font-size:.92rem}
   .idbox{display:flex;gap:.5rem;width:100%;max-width:480px;margin:0 auto 1.8rem}
   .idbox input{flex:1;font-family:inherit;font-size:1rem;padding:.8rem 1.1rem;
     border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text);min-width:0}
@@ -109,6 +115,11 @@
   .mini-link{font-size:.78rem;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
   .mini-link:hover{color:var(--text)}
 
+  .share{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+    border:2px solid var(--volt);background:rgba(255,204,0,.08);border-radius:12px;padding:.9rem 1.1rem}
+  .share .sk{margin:0 0 .15rem;font-weight:800;font-size:.95rem}
+  .share .sd{margin:0;font-size:.86rem;color:var(--muted)}
+  .share .sb{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
   .stepcard{border:1px solid var(--line);border-radius:12px;padding:1.25rem 1.3rem}
   .stepcard h3{margin:0 0 .55rem;font-size:1.35rem;font-weight:800;letter-spacing:-.015em}
   .stepcard p.instr{margin:0 0 .9rem}
@@ -194,6 +205,12 @@
   .promo-ok::after{display:none}
   .promo-ok .pk{color:var(--core)}
   .promo-ok .pd{margin:0;color:var(--text)}
+  .warnbox{max-width:620px;margin:1rem auto 0;padding:2rem 1.8rem;border-radius:16px;
+    border:2px solid var(--volt);background:rgba(255,204,0,.08)}
+  .warnbox .wk{margin:0 0 .5rem;font-size:.72rem;font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;color:#8A6D00}
+  .warnbox h1{font-size:clamp(1.4rem,2.6vw,1.9rem)!important;margin:0 0 .8rem!important}
+  .warnbox .wd{margin:0 auto 1.4rem!important;max-width:34rem;color:var(--text)!important;font-size:1rem}
   .nextup{margin-bottom:1.4rem}
   .nextup .nu{font-weight:800;font-size:.95rem;margin:0 0 .8rem;color:var(--text)}
   .finish .cal{font-size:.9rem;color:var(--muted)}
@@ -734,6 +751,18 @@ const INTRO_FLUJOS = {
            'acceso técnico a tu tienda.'
 };
 
+const MODO_PRUEBA = {
+  WOO:    { step: 'woo_set_environment',
+            campo: 'el campo Select the Aplazo environment',
+            ok: 'diga Producción, no development' },
+  VTEX:   { step: 'vtex_test_mode_off',
+            campo: 'la casilla Enable test mode',
+            ok: 'esté desmarcada' },
+  PRESTA: { step: 'presta_test_env_off',
+            campo: 'el interruptor Test environment',
+            ok: 'esté apagado' }
+};
+
 const DATO_BANNER = 'Genera 34% más ventas, comprobado';
 
 const BANNER = {
@@ -763,7 +792,8 @@ const MERCHANT_ID = new URLSearchParams(location.search).get('m') || '';
 const DEVICE = /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'movil' : 'escritorio';
 
 const S = { platform:null, flow:null, idx:0, history:[], events:[], busy:false,
-            merchant:null, done:false, rated:false, stepEnteredAt:Date.now() };
+            merchant:null, done:false, rated:false, stepEnteredAt:Date.now(),
+            checkTest:false };
 
 // Defensivas a propósito: logEvent se llama al elegir plataforma, cuando
 // todavía no hay flujo. Sin estas guardas, step() reventaba y el manejador
@@ -971,12 +1001,44 @@ function contextLabel(){
   return f ? p.label + ' · ' + f.label : p.label;
 }
 
+const LLAVE_AVANCE = 'aplazo_autopilot_avance';
+
+function guardarAvance(){
+  try{
+    // Solo vale la pena guardar si ya está dentro de un flujo sin terminar
+    if (S.platform && S.flow && !S.done){
+      localStorage.setItem(LLAVE_AVANCE, JSON.stringify({
+        merchant: S.merchant, platform: S.platform, flow: S.flow,
+        idx: S.idx, cuando: Date.now()
+      }));
+    } else if (S.done) {
+      localStorage.removeItem(LLAVE_AVANCE);
+    }
+  }catch(e){ /* navegador sin almacenamiento: no pasa nada */ }
+}
+
+function leerAvance(){
+  try{
+    const v = JSON.parse(localStorage.getItem(LLAVE_AVANCE) || 'null');
+    if (!v || !v.platform || !v.flow) return null;
+    // Un avance de hace más de 30 días ya no sirve: seguramente cambió todo
+    if (Date.now() - (v.cuando || 0) > 30*24*3600*1000) return null;
+    return v;
+  }catch(e){ return null; }
+}
+
+function borrarAvance(){
+  try{ localStorage.removeItem(LLAVE_AVANCE); }catch(e){}
+}
+
 function render(){
+  guardarAvance();
   try{
     document.getElementById('restart').style.display = S.platform ? '' : 'none';
     document.getElementById('ctx').textContent = contextLabel();
     if (!S.platform) return renderStart();
     if (!S.flow) return renderFlowPick();
+    if (S.checkTest) return renderCheckTest();
     if (S.done) return renderDone();
     renderWork();
   }catch(err){
@@ -988,7 +1050,24 @@ function render(){
 
 function renderStart(){
   const el = document.getElementById('screen');
+  const av = leerAvance();
+  let retomar = '';
+  if (av && KB[av.platform] && KB[av.platform].flows[av.flow]){
+    const f = KB[av.platform].flows[av.flow];
+    const n = f.steps.length;
+    const paso = Math.min(av.idx, n - 1);
+    retomar = `<div class="resume">
+      <p class="rk">Tienes una instalación a medias</p>
+      <p class="rt">${KB[av.platform].label} · ${f.label}</p>
+      <p class="rd">Te quedaste en el paso ${paso + 1} de ${n}: ${f.steps[paso].t}</p>
+      <div class="actions" style="justify-content:center">
+        <button class="b-primary" id="rgo">Continuar donde me quedé</button>
+        <button class="b-ghost" id="rno">Empezar de nuevo</button>
+      </div>
+    </div>`;
+  }
   el.innerHTML = `<div class="start">
+    ${retomar}
     <h1>Vamos a instalar APLAZO en tu sitio web</h1>
     <p>Te guío paso a paso, a tu ritmo.${S.merchant ? '' : ' Antes de empezar, dime cómo se llama tu tienda.'}</p>
     ${S.merchant ? '' : `<div class="idbox">
@@ -1004,6 +1083,22 @@ function renderStart(){
       <button class="card" data-p="PRESTA"><b>PrestaShop</b><span>Disponible</span></button>
       <button class="card" disabled><b>Otra plataforma</b><span>Próximamente</span></button>
     </div></div>`;
+  const rgo = document.getElementById('rgo');
+  if (rgo) rgo.onclick = ()=>{
+    const a = leerAvance();
+    S.merchant = a.merchant || S.merchant;
+    S.platform = a.platform; S.flow = a.flow;
+    S.idx = Math.min(a.idx, KB[a.platform].flows[a.flow].steps.length - 1);
+    logEvent('session_resumed', { detail: a.platform + '/' + a.flow + ' paso ' + (S.idx + 1) });
+    logEvent('step_entered');
+    render();
+    addMsg('bot','Qué bueno que regresaste. Seguimos justo donde te quedaste');
+  };
+  const rno = document.getElementById('rno');
+  if (rno) rno.onclick = ()=>{
+    logEvent('resume_declined'); borrarAvance(); render();
+  };
+
   const go = ()=>{
     const v = (document.getElementById('mname').value || '').trim();
     if (!v) { document.getElementById('mname').focus(); return; }
@@ -1080,6 +1175,16 @@ function renderWork(){
 
     <div class="split">
       <section class="side-left">
+        ${f.needsHelp ? `<div class="share">
+          <div>
+            <p class="sk">¿No eres tú quien administra tu tienda?</p>
+            <p class="sd">Mándale estas instrucciones a tu desarrollador o agencia, con todos los pasos.</p>
+          </div>
+          <div class="sb">
+            <button class="b-primary" id="shcopy">Copiar instrucciones</button>
+            <a class="btn-link" id="shmail" href="#">Enviar por correo</a>
+          </div>
+        </div>` : ''}
         <div class="stepcard">
           <h3>${st.t}</h3>
           <p class="instr">${st.i}</p>
@@ -1118,7 +1223,9 @@ function renderWork(){
     logEvent('step_completed');
     if (S.idx === n-1){
       logEvent('flow_completed');
-      S.done = true; render();
+      if (MODO_PRUEBA[S.platform] && S.flow === 'CHECKOUT') { S.checkTest = true; }
+      else { S.done = true; }
+      render();
       return;
     }
     S.idx++; logEvent('step_entered'); render();
@@ -1130,6 +1237,18 @@ function renderWork(){
   document.getElementById('esc').onclick = ()=>{
     logEvent('escalated',{reason:'calendly_desde_el_paso'});
   };
+  const shc = document.getElementById('shcopy');
+  if (shc) shc.onclick = ()=> copiarInstrucciones(shc);
+  const shm = document.getElementById('shmail');
+  if (shm) shm.onclick = (e)=>{
+    e.preventDefault();
+    logEvent('instructions_shared', { detail: 'correo' });
+    const asunto = 'Ayuda para instalar APLAZO en ' + KB[S.platform].label;
+    // Los clientes de correo recortan cuerpos muy largos: por eso también existe copiar
+    location.href = 'mailto:?subject=' + encodeURIComponent(asunto) +
+                    '&body=' + encodeURIComponent(textoParaCompartir());
+  };
+
   const shot = document.getElementById('shot');
   if (shot) shot.onclick = ()=> shot.classList.toggle('big');
   document.getElementById('home').onclick = ()=>{
@@ -1145,6 +1264,81 @@ function renderWork(){
   document.getElementById('inp').onkeydown = e => { if (e.key === 'Enter') send(); };
   setBusy(S.busy);
   scrollLog();
+}
+
+function textoParaCompartir(){
+  const p = KB[S.platform], f = p.flows[S.flow];
+  const liga = location.origin + location.pathname + (MERCHANT_ID ? '?m=' + MERCHANT_ID : '');
+  const lineas = [
+    'Hola, necesito ayuda para instalar APLAZO en mi tienda.',
+    '',
+    'Plataforma: ' + p.label,
+    'Qué hay que hacer: ' + f.label,
+    '',
+    'Estos son los pasos:',
+    ''
+  ];
+  f.steps.forEach((x, i) => {
+    lineas.push((i + 1) + '. ' + x.t);
+    lineas.push('   ' + x.i);
+    lineas.push('   Queda listo cuando: ' + x.d);
+    lineas.push('');
+  });
+  lineas.push('La guía completa, con capturas, está aquí:');
+  lineas.push(liga);
+  lineas.push('');
+  lineas.push('Si tienes dudas, puedes agendar una sesión con el equipo de integración de APLAZO:');
+  lineas.push(CALENDLY);
+  return lineas.join('\n');
+}
+
+async function copiarInstrucciones(boton){
+  const texto = textoParaCompartir();
+  let ok = false;
+  try{ await navigator.clipboard.writeText(texto); ok = true; }catch(e){
+    // Respaldo para navegadores que no permiten el portapapeles
+    try{
+      const t = document.createElement('textarea');
+      t.value = texto; document.body.appendChild(t); t.select();
+      ok = document.execCommand('copy'); document.body.removeChild(t);
+    }catch(e2){}
+  }
+  logEvent('instructions_shared', { detail: ok ? 'copiado' : 'fallo_al_copiar' });
+  boton.textContent = ok ? 'Copiado, ya puedes pegarlo' : 'No se pudo copiar';
+  setTimeout(()=>{ boton.textContent = 'Copiar instrucciones'; }, 2500);
+}
+
+// Antes del cierre, en las plataformas con trampa de modo prueba.
+// Es la causa más probable de "integrado, nunca vendió": APLAZO se ve en el
+// checkout pero ninguna compra es real, y el comercio se va tranquilo.
+function renderCheckTest(){
+  const m = MODO_PRUEBA[S.platform];
+  const el = document.getElementById('screen');
+  el.innerHTML = `<div class="finish">
+    <div class="warnbox">
+      <p class="wk">Antes de terminar</p>
+      <h1>¿Revisaste que el modo prueba esté apagado?</h1>
+      <p class="wd">Revisa que ${m.campo} ${m.ok}. Si queda en modo prueba, APLAZO se ve
+        en tu tienda pero <b>ninguna compra es real</b>, y es muy fácil pasarlo por alto.</p>
+      <div class="actions" style="justify-content:center">
+        <button class="b-primary" id="tyes">Sí, ya lo revisé</button>
+        <button class="b-ghost" id="tno">No, llévame a ese paso</button>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('tyes').onclick = ()=>{
+    logEvent('test_mode_confirmed');
+    S.checkTest = false; S.done = true; render();
+  };
+  document.getElementById('tno').onclick = ()=>{
+    logEvent('test_mode_unchecked');
+    const i = steps().findIndex(x => x.id === m.step);
+    S.checkTest = false;
+    S.idx = i >= 0 ? i : 0;
+    logEvent('step_entered'); render();
+    addMsg('bot','Revisemos este paso con calma. Cuando esté listo, dale en Sí, ya está y seguimos');
+  };
 }
 
 // Pantalla final: una sola pregunta, no un NPS de 0 a 10. Dos toques y
@@ -1279,7 +1473,8 @@ function renderEvents(){
 }
 
 document.getElementById('restart').onclick = ()=>{
-  S.platform=null; S.flow=null; S.idx=0; S.merchant=null; S.done=false; S.rated=false;
+  borrarAvance();
+  S.platform=null; S.flow=null; S.idx=0; S.merchant=null; S.done=false; S.rated=false; S.checkTest=false;
   S.events=[]; renderEvents(); render();
 };
 
