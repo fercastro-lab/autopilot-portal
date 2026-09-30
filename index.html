@@ -200,6 +200,7 @@
   .promo .pd{margin:0 0 1.1rem;color:rgba(255,255,255,.86);font-size:.95rem}
   .promo .pn{margin:-.5rem 0 1.1rem;font-size:.85rem;color:rgba(255,255,255,.65)}
   .promo .b-primary{background:var(--aqua);color:var(--black);position:relative;z-index:1}
+  .btn-promo{display:inline-block;text-decoration:none;border-radius:999px;padding:.62rem 1.25rem;font-weight:700;font-size:.9rem}
   /* Variante cuando el banner YA está activo: confirma, no invita a actuar */
   .promo-ok{background:var(--frame);color:var(--text);border:1px solid var(--line)}
   .promo-ok::after{display:none}
@@ -478,58 +479,6 @@ const KB = {
            d:"El status dice Active y guardaste los cambios",cred:false,
            br:"If it does not appear after ten minutes, check vtex_test_mode_off and vtex_save_provider, then escalate."}
         ]
-      },
-      WIDGET_IO: {
-        needsHelp: true,
-        label: "Mostrar el banner en VTEX IO",
-        blurb: "Necesita a alguien con acceso técnico a tu tienda",
-        steps: [
-          {id:"vtex_io_warn",t:"Antes de empezar: esto necesita a un desarrollador",
-           i:"Este flujo se hace desde la terminal, con la línea de comandos de VTEX, y requiere editar el tema de tu tienda. No es algo que se resuelva desde el panel de administración. Si no tienes a alguien técnico disponible, agenda una sesión de integración y lo vemos juntos.",
-           d:"Tienes a alguien con acceso a la terminal y al tema de la tienda, o decidiste agendar",cred:false,
-           br:"If the merchant has no technical person available, escalate and stop here."},
-
-          {id:"vtex_io_install",t:"Instala los componentes de APLAZO",
-           i:"Desde la terminal, con la sesión iniciada en la cuenta de VTEX correcta, ejecuta el comando que instala los componentes de APLAZO. El comando exacto está en la documentación técnica de APLAZO.",
-           d:"El comando termina sin errores y la app queda instalada en la cuenta",cred:false},
-
-          {id:"vtex_io_dependency",t:"Agrega la dependencia al tema",
-           i:"Agrega los componentes de APLAZO a las dependencias peer del store-theme de la tienda.",
-           d:"La dependencia está declarada en el tema",cred:false},
-
-          {id:"vtex_io_block",t:"Declara el bloque en la página de producto",
-           i:"Coloca el bloque aplazo-placement en la plantilla de página de producto, la que VTEX llama store.product. Ese bloque es el que muestra el mensaje con el monto y el plazo, incluso antes de que el cliente agregue el producto al carrito.",
-           d:"El bloque está declarado en la plantilla de producto",cred:false},
-
-          {id:"vtex_io_settings",img:"img/vtex_io_settings.jpg",t:"Configura la app",
-           i:"En el panel de administración entra a Apps y luego a Mis Apps, y da clic en el recuadro de Aplazo para definir los ajustes.",
-           d:"El banner se ve en una página de producto de tu tienda",cred:false,
-           br:"If the banner does not render after publishing, escalate to the APLAZO team."}
-        ]
-      },
-      WIDGET_CMS: {
-        needsHelp: true,
-        label: "Mostrar el banner en VTEX CMS",
-        blurb: "Para tiendas con CMS, se hace con Google Tag Manager",
-        steps: [
-          {id:"vtex_cms_warn",t:"Antes de empezar: vas a necesitar acceso a Tag Manager",
-           i:"Este flujo aplica si tu tienda usa VTEX CMS en lugar de VTEX IO, y se hace desde tu cuenta de Google Tag Manager. Si no sabes cuál de las dos usa tu tienda, o no tienes acceso a Tag Manager, agenda una sesión y lo revisamos.",
-           d:"Sabes que tu tienda usa VTEX CMS y tienes acceso a Tag Manager",cred:false,
-           br:"If the merchant is unsure which VTEX version the store uses, escalate rather than guess."},
-
-          {id:"vtex_cms_download",t:"Descarga el contenedor de APLAZO",
-           i:"Descarga el archivo JSON del contenedor que te comparte APLAZO. Ese archivo trae las etiquetas y los disparadores que hacen funcionar el banner.",
-           d:"Tienes el archivo JSON descargado en tu computadora",cred:false},
-
-          {id:"vtex_cms_import",t:"Impórtalo en Tag Manager",
-           i:"En tu cuenta de Google Tag Manager entra a Administrador y luego a Importar contenedor. Sube el archivo JSON y elige el espacio de trabajo donde lo quieres importar.",
-           d:"Tag Manager muestra la vista previa con las etiquetas y disparadores que se van a agregar",cred:false},
-
-          {id:"vtex_cms_publish",t:"Confirma y publica",
-           i:"Revisa la vista previa, da clic en Confirmar, y publica los cambios en Tag Manager. Hasta que publiques, el banner no se ve en tu tienda.",
-           d:"Los cambios están publicados y el banner se ve en una página de producto",cred:false,
-           br:"If the banner does not appear after publishing, escalate to the APLAZO team."}
-        ]
       }
     },
     qa: [
@@ -539,8 +488,7 @@ const KB = {
       ["¿Qué pasa si dejo marcada la casilla Enable test mode?","APLAZO aparece en tu tienda pero ninguna compra es real, y tus clientes pueden ver opciones de pago de prueba. Viene marcada por defecto, así que vale la pena revisarla dos veces."],
       ["¿Cuánto tardan en aplicarse los cambios?","Hasta diez minutos. Si acabas de guardar y no lo ves, espera antes de volver a configurar: cambiar cosas a medias suele complicar más."],
       ["¿Cuál es la diferencia entre el método de pago y el banner?","El método de pago permite que tus clientes paguen con APLAZO al momento de comprar. El banner es el mensaje que aparece en tus páginas de producto para que sepan que pueden hacerlo antes de llegar ahí. Son dos configuraciones distintas."],
-      ["¿Puedo poner el banner yo solo?","En VTEX el banner necesita acceso técnico: o la terminal de VTEX, o Google Tag Manager, según cómo esté hecha tu tienda. El método de pago sí lo puedes hacer tú desde el panel. Para el banner, lo más práctico es agendar una sesión."],
-      ["¿Cómo sé si mi tienda usa VTEX IO o VTEX CMS?","No es algo que se vea a simple vista desde el panel. Lo puede confirmar quien haya desarrollado tu tienda, o lo revisamos en una sesión de integración."],
+      ["¿Cómo activo el banner en VTEX?","En VTEX el banner lo configura el equipo de integración contigo, porque necesita ajustes en la estructura de tu tienda que no están en el panel de administración. Agenda una sesión de integración y lo dejamos listo juntos."],
       ["¿Alguien de APLAZO puede hacerlo por mí?","Sí. Si lo prefieres, puedes agendar una sesión de integración y lo revisamos juntos."],
       ["¿En cuánto tiempo voy a poder vender con APLAZO?","La configuración del método de pago toma minutos, más diez que tarda VTEX en aplicarla. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
       ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta en APLAZO. Pregúntale directamente a esa persona."]
@@ -668,6 +616,107 @@ const KB = {
       ["¿En cuánto tiempo voy a poder vender con APLAZO?","La instalación en sí toma minutos. No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
       ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta en APLAZO. Pregúntale directamente a esa persona."]
     ]
+  },
+  MGT: {
+    label: "Magento",
+    flows: {
+      MODULE_INSTALL: {
+        needsHelp: true,
+        label: "Instalar el módulo de APLAZO",
+        blurb: "Se hace desde la terminal: necesita a un desarrollador",
+        steps: [
+          {id:"mgt_install_warn",t:"Antes de empezar: esto lo hace un desarrollador",
+           i:"Instalar el módulo de APLAZO en Magento se hace desde la terminal del servidor de tu tienda, con comandos. Si no eres tú quien administra el servidor, usa el botón de arriba para mandarle estas instrucciones a tu desarrollador o agencia. Si no tienes a nadie técnico disponible, agenda una sesión de integración.",
+           d:"Tienes a alguien con acceso a la terminal de tu tienda, o decidiste agendar una sesión",cred:false,
+           br:"If the merchant has no technical person with terminal access, suggest booking an integration session and stop here."},
+
+          {id:"mgt_composer_require",t:"Instala el paquete de APLAZO",
+           i:"En la raíz del proyecto Magento, ejecuta este comando: composer require aplazo/aplazopayment",
+           d:"El comando termina sin errores",cred:false},
+
+          {id:"mgt_enable_deploy",t:"Habilita el módulo y despliega",
+           i:"Ejecuta estos cinco comandos, en este orden y uno por uno: bin/magento module:enable Aplazo_AplazoPayment · bin/magento setup:upgrade · bin/magento setup:di:compile · bin/magento setup:static-content:deploy en_US es_MX · bin/magento cache:flush. Cuando terminen, sigue con la configuración de APLAZO en tu panel de administración.",
+           d:"Los cinco comandos terminan sin errores",cred:false,
+           br:"If any command fails, do not guess a fix: suggest booking an integration session."}
+        ]
+      },
+      CHECKOUT: {
+        label: "Configurar APLAZO en tu panel",
+        blurb: "Credenciales, modo de pruebas y banner, desde el admin",
+        steps: [
+          {id:"mgt_open_payment_methods",img:"img/mgt_open_payment_methods.jpg",t:"Abre los métodos de pago",
+           i:"En tu panel de Magento ve a Stores, luego Configuration, luego Sales, y luego Payment Methods. En la sección Other payment methods busca APLAZO y da clic en Configure.",
+           d:"Se abre la configuración de APLAZO",cred:false,
+           br:"If APLAZO does not appear in Other payment methods, the module was not installed or deployed. Send the merchant to the Instalar el módulo flow."},
+
+          {id:"mgt_enter_credentials",img:"img/mgt_enter_credentials.jpg",t:"Ingresa tu Merchant ID y API Token",
+           i:"Despliega la sección Credenciales y llena los campos Merchant ID y API token con tus credenciales. Copia y pega cada valor completo, sin espacios al inicio ni al final. Al guardar, arriba aparece Estado de credenciales: si dice que tus credenciales son válidas, quedaron bien.",
+           d:"Estado de credenciales dice que tus credenciales son válidas",cred:true,
+           br:"If the merchant does not have credentials, they should book an integration session. The assistant does not issue them."},
+
+          {id:"mgt_activate",img:"img/mgt_activate.jpg",t:"Activa APLAZO",
+           i:"Despliega el menú APLAZO checkout y en Activar selecciona Yes.",
+           d:"Activar dice Yes",cred:false},
+
+          {id:"mgt_test_mode_off",t:"Deja Modo de pruebas en Disable",
+           i:"En el mismo menú está la opción Modo de pruebas. Tiene que decir Disable. Aquí el nombre engaña: Disable es producción y Enable es modo de pruebas. Tus credenciales son de producción, así que si lo dejas en Enable, APLAZO no va a funcionar con compras reales. Ojo, la guía oficial muestra esta opción en Enable en la imagen de ejemplo. Tú déjala en Disable.",
+           d:"Modo de pruebas dice Disable",cred:false},
+
+          {id:"mgt_widgets",img:"img/mgt_widgets.jpg",t:"Activa el banner en producto y carrito",
+           i:"En Mostrar widget en página de producto selecciona Yes, y en Mostrar widget en página de carrito también Yes. Con esto tus clientes ven que pueden pagar en quincenas antes de llegar al checkout.",
+           d:"Las dos opciones del widget dicen Yes",cred:false},
+
+          {id:"mgt_health_check",t:"Revisa la sección Test & Debug",
+           i:"Despliega la sección Test & Debug. Si ves la opción Check Healthy Site, déjala en No. Es el error de configuración más común en Magento. Si no ves esa opción, sigue al siguiente paso.",
+           d:"Check Healthy Site dice No, o la opción no aparece",cred:false},
+
+          {id:"mgt_save",t:"Guarda la configuración",
+           i:"Da clic en Save Config, arriba a la derecha.",
+           d:"Magento confirma que la configuración se guardó",cred:false},
+
+          {id:"mgt_verify",t:"Verifica en tu tienda",
+           i:"Abre tu tienda como si fueras un cliente. Revisa dos cosas: que en una página de producto se vea el mensaje de pago en quincenas, y que al llegar al paso de pago aparezca APLAZO como opción.",
+           d:"Ves el mensaje en el producto y APLAZO en el checkout",cred:false,
+           br:"If APLAZO does not appear, check mgt_test_mode_off and mgt_activate first, then suggest booking an integration session."}
+        ]
+      },
+      MODULE_UPDATE: {
+        needsHelp: true,
+        label: "Actualizar el módulo",
+        blurb: "Si ya tienes APLAZO: mejora el banner y su configuración",
+        steps: [
+          {id:"mgt_update_warn",t:"Antes de empezar: qué incluye y quién lo hace",
+           i:"La actualización mejora el banner, simplifica su configuración y permite mostrar mensajes por temporada o promociones. Se hace desde la terminal, así que la hace un desarrollador. Recomendación: hazla primero en tu ambiente de staging y después en producción.",
+           d:"Tienes a alguien con acceso a la terminal, idealmente con un ambiente de staging",cred:false,
+           br:"If the merchant has no technical person, suggest booking an integration session and stop here."},
+
+          {id:"mgt_update_composer",t:"Actualiza el paquete",
+           i:"En la raíz del proyecto Magento ejecuta: sudo composer update aplazo/aplazopayment",
+           d:"El comando termina sin errores",cred:false},
+
+          {id:"mgt_update_deploy",t:"Despliega los cambios",
+           i:"Ejecuta estos cuatro comandos, en orden: bin/magento setup:upgrade · bin/magento setup:di:compile · bin/magento setup:static-content:deploy · bin/magento cache:clean",
+           d:"Los cuatro comandos terminan sin errores",cred:false},
+
+          {id:"mgt_update_verify",t:"Verifica el banner",
+           i:"Abre tu tienda y revisa que el banner de APLAZO se vea bien en tres lugares: la página de producto, el carrito y el checkout. Si usas mensajes promocionales, pruébalos también.",
+           d:"El banner se ve bien en producto, carrito y checkout",cred:false,
+           br:"If the banner breaks after updating, suggest booking an integration session."}
+        ]
+      }
+    },
+    qa: [
+      ["¿Dónde consigo mi Merchant ID y mi API Token?","Se generan para tu negocio cuando tu cuenta queda habilitada técnicamente, y el equipo de APLAZO te los entrega. Si no los tienes, agenda una sesión de integración y el equipo de APLAZO te ayuda a conseguirlos."],
+      ["¿Necesito un desarrollador para instalar APLAZO en Magento?","Para instalar el módulo, sí: se hace con comandos desde la terminal de tu tienda. Después, la configuración la puedes hacer tú desde tu panel de administración."],
+      ["No aparece APLAZO en Payment Methods.","Casi siempre significa que el módulo no se instaló o no se desplegó completo. Pídele a tu desarrollador que revise que los comandos de instalación hayan terminado sin errores, incluido el de limpiar caché. Si sigue sin aparecer, agenda una sesión de integración y lo revisamos juntos."],
+      ["¿Qué pongo en Modo de pruebas?","Disable. En Magento el nombre engaña: Disable es producción y Enable es modo de pruebas. Tus credenciales son de producción, así que tiene que decir Disable."],
+      ["¿Cómo sé si mis credenciales quedaron bien?","Al guardar, en la configuración de APLAZO aparece Estado de credenciales. Si dice que tus credenciales son válidas, quedaron bien."],
+      ["¿Qué pongo en las demás opciones, como estados de orden o reservar stock?","Dependen de cómo opera tu tienda. La guía oficial muestra como ejemplo: orden nueva en Pending, aprobada en Processing, rechazada en Canceled, y reservar stock en Yes. Si no estás seguro de alguna, agenda una sesión de integración y la revisamos contigo."],
+      ["¿Cómo actualizo el módulo de APLAZO?","Hay un flujo para eso en esta misma guía: Actualizar el módulo. Lo hace un desarrollador desde la terminal, y se recomienda probarlo primero en staging."],
+      ["¿Alguien de APLAZO puede hacerlo por mí?","Sí. Si lo prefieres, agenda una sesión de integración y lo hacemos juntos."],
+      ["¿En cuánto tiempo voy a poder vender con APLAZO?","No te puedo prometer una fecha específica de activación, y prefiero no darte un número que no puedo garantizar."],
+      ["¿Qué comisión me cobra APLAZO?","Las condiciones comerciales las ve tu contacto de cuenta en APLAZO. Pregúntale directamente a esa persona."]
+    ]
   }
 };
 
@@ -685,6 +734,7 @@ function convertirSnapshot(snap){
     const flows = {};
 
     Object.keys(src.flows || {}).forEach(f => {
+      if (!(meta.flows && meta.flows[f])) return;   // flujo desconocido o retirado
       const pasos = (src.flows[f] || []).map(x => ({
         id: x.step_id,
         t: x.title,
@@ -746,9 +796,8 @@ async function cargarKB(){
 const INTRO_FLUJOS = {
   SHOPIFY: 'Necesitas las dos primeras para vender con APLAZO. La tercera solo si la app del ' +
            'banner no funciona con el diseño de tu tienda, lo que Shopify llama tu tema.',
-  VTEX:    'Empieza por el método de pago: ese lo puedes hacer tú desde el panel. Las dos ' +
-           'opciones del banner están marcadas en amarillo porque necesitan a alguien con ' +
-           'acceso técnico a tu tienda.'
+  MGT:     'Empieza por instalar el módulo, que necesita a alguien con acceso a la terminal ' +
+           'de tu tienda. Después configuras APLAZO desde tu panel de administración.'
 };
 
 const MODO_PRUEBA = {
@@ -758,6 +807,9 @@ const MODO_PRUEBA = {
   VTEX:   { step: 'vtex_test_mode_off',
             campo: 'la casilla Enable test mode',
             ok: 'esté desmarcada' },
+  MGT:    { step: 'mgt_test_mode_off',
+            campo: 'la opción Modo de pruebas',
+            ok: 'diga Disable, que en Magento es producción' },
   PRESTA: { step: 'presta_test_env_off',
             campo: 'el interruptor Test environment',
             ok: 'esté apagado' }
@@ -767,7 +819,8 @@ const DATO_BANNER = 'Genera 34% más ventas, comprobado';
 
 const BANNER = {
   SHOPIFY: { tipo: 'separado',   flujo: 'BANNER' },
-  VTEX:    { tipo: 'separado',   flujo: null, ayuda: true },   // dos opciones técnicas
+  VTEX:    { tipo: 'equipo' },                                  // lo configura el equipo
+  MGT:     { tipo: 'incluido' },
   WOO:     { tipo: 'incluido' },                               // fue un paso del mismo flujo
   PRESTA:  { tipo: 'incluido' },
   TDN:     { tipo: 'automatico' }                              // se activa con el checkout
@@ -1081,6 +1134,7 @@ function renderStart(){
       <button class="card" data-p="VTEX"><b>VTEX</b><span>Disponible</span></button>
       <button class="card" data-p="TDN"><b>Tiendanube</b><span>Disponible</span></button>
       <button class="card" data-p="PRESTA"><b>PrestaShop</b><span>Disponible</span></button>
+      <button class="card" data-p="MGT"><b>Magento</b><span>Disponible</span></button>
       <button class="card" disabled><b>Otra plataforma</b><span>Próximamente</span></button>
     </div></div>`;
   const rgo = document.getElementById('rgo');
@@ -1386,6 +1440,17 @@ function renderDone(){
         <p class="pd">Lo activaste en esta misma instalación. Si todavía no lo ves en tus
           productos, revisa que ese interruptor haya quedado en Yes.</p>
       </div>`;
+  } else if (b.tipo === 'equipo') {
+    siguiente = 'Tus clientes ya pueden pagar con APLAZO al momento de comprar.';
+    promo = `<div class="promo">
+        <p class="pk">Siguiente paso recomendado</p>
+        <p class="pt">Activa el banner en tus productos</p>
+        <span class="pstat">${DATO_BANNER}</span>
+        <p class="pd">En VTEX el banner lo configura el equipo de integración contigo, porque
+          necesita ajustes que no están en el panel de administración.</p>
+        <a class="b-primary btn-promo" href="${CALENDLY}" target="_blank" rel="noopener"
+           id="gocal">Agendar una sesión</a>
+      </div>`;
   } else if (b.tipo === 'automatico') {
     siguiente = 'Tus clientes ya pueden pagar con APLAZO al momento de comprar.';
     promo = `<div class="promo promo-ok">
@@ -1432,6 +1497,9 @@ function renderDone(){
     <p class="cal">¿Quieres revisarlo con alguien?
       <a class="btn-link" href="${CALENDLY}" target="_blank" rel="noopener">Habla con nuestro equipo de integración</a></p>
   </div>`;
+
+  const gc = document.getElementById('gocal');
+  if (gc) gc.onclick = ()=> logEvent('escalated', { reason: 'banner_vtex_desde_cierre' });
 
   const gb = document.getElementById('gobanner');
   if (gb) gb.onclick = ()=>{
