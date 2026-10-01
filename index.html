@@ -223,6 +223,10 @@
     text-transform:uppercase;color:#8A6D00}
   .warnbox h1{font-size:clamp(1.4rem,2.6vw,1.9rem)!important;margin:0 0 .8rem!important}
   .warnbox .wd{margin:0 auto 1.4rem!important;max-width:34rem;color:var(--text)!important;font-size:1rem}
+  .selfrep{max-width:620px;margin:0 auto 1.6rem;padding:1.3rem 1.4rem;border-radius:16px;
+    border:2px solid var(--aqua);background:rgba(71,224,244,.07);text-align:center}
+  .selfrep .sk{margin:0 0 .35rem!important;font-weight:800;font-size:1.1rem;color:var(--text)!important}
+  .selfrep .sd{margin:0 0 1rem!important;font-size:.92rem;color:var(--muted)}
   .nextup{margin-bottom:1.4rem}
   .nextup .nu{font-weight:800;font-size:.95rem;margin:0 0 .8rem;color:var(--text)}
   .finish .cal{font-size:.9rem;color:var(--muted)}
@@ -920,7 +924,7 @@ const S = { platform:null, flow:null, idx:0, history:[], events:[], busy:false,
             // Las credenciales viven solo aquí, en la memoria de la pestaña.
             // Nunca se guardan en el navegador, nunca se mandan al asistente
             // y nunca van en un evento. Al cerrar la pestaña desaparecen.
-            creds:null, liga:null };
+            creds:null, liga:null, reporte:null };
 
 // Defensivas a propósito: logEvent se llama al elegir plataforma, cuando
 // todavía no hay flujo. Sin estas guardas, step() reventaba y el manejador
@@ -1582,7 +1586,25 @@ function renderDone(){
       <p class="sub">${siguiente}</p>
     </div>
 
+    ${(S.creds && LIGA_K && S.flow === 'CHECKOUT') ? `<div class="selfrep" id="selfrep">
+        ${S.reporte === 'ok' ? `<p class="sk">Gracias, lo registramos</p>
+             <p class="sd">El equipo de APLAZO ya sabe que terminaste. Si en los próximos días tus
+               clientes no pueden pagar con APLAZO, habla con nuestro equipo de integración.</p>`
+        : S.reporte === 'confirmar' ? `<p class="sk">¿Confirmas que ya terminaste?</p>
+             <p class="sd">Le vamos a avisar al equipo de APLAZO que tu tienda ya está lista para recibir pagos.</p>
+             <div class="actions" style="justify-content:center">
+               <button class="b-primary" id="srsi">Sí, confirmo</button>
+               <button class="b-ghost" id="srno">Todavía no</button></div>`
+        : S.reporte === 'error' ? `<p class="sk">No pudimos registrarlo</p>
+             <p class="sd">No pasa nada: el equipo de APLAZO lo va a detectar en cuanto tu primer cliente pague.</p>`
+        : `<p class="sk">¿APLAZO ya aparece en tu checkout?</p>
+             <p class="sd">Si ya lo ves como opción de pago en tu tienda, avísanos.</p>
+             <button class="b-primary" id="srgo">Sí, ya me integré</button>`}
+      </div>` : ''}
+
     ${promo}
+
+
 
     ${S.rated ? `<div class="rate rated">
         <p class="rq">Gracias por decirnos</p>
@@ -1611,6 +1633,26 @@ function renderDone(){
     <p class="cal">¿Quieres revisarlo con alguien?
       <a class="btn-link" href="${CALENDLY}" target="_blank" rel="noopener">Habla con nuestro equipo de integración</a></p>
   </div>`;
+
+  const srgo = document.getElementById('srgo');
+  if (srgo) srgo.onclick = ()=>{ S.reporte = 'confirmar'; render(); };
+  const srno = document.getElementById('srno');
+  if (srno) srno.onclick = ()=>{ S.reporte = null; logEvent('reporte_cancelado'); render(); };
+  const srsi = document.getElementById('srsi');
+  if (srsi) srsi.onclick = async ()=>{
+    srsi.disabled = true; srsi.textContent = 'Registrando…';
+    try{
+      const r = await fetch(CRED_URL, { method:'POST',
+        body: JSON.stringify({ type:'integrado', m: MERCHANT_ID, k: LIGA_K }) });
+      const d = await r.json();
+      S.reporte = d.ok ? 'ok' : 'error';
+      logEvent('merchant_reporto_integracion', { detail: d.ok ? 'registrado' : (d.motivo || 'error') });
+    }catch(e){
+      S.reporte = 'error';
+      logEvent('merchant_reporto_integracion', { detail: 'sin conexión' });
+    }
+    render();
+  };
 
   const gc = document.getElementById('gocal');
   if (gc) gc.onclick = ()=> logEvent('escalated', { reason: 'banner_vtex_desde_cierre' });
