@@ -232,6 +232,7 @@
   .finish .cal{font-size:.9rem;color:var(--muted)}
   .finish .cal .btn-link{margin-left:.5rem}
 
+.instr a{color:inherit;text-decoration:underline;font-weight:700}
 </style>
 </head>
 <body>
@@ -265,7 +266,7 @@ const KB = {
         blurb: "Para que puedan pagar con APLAZO al comprar",
         steps: [
           {id:"shopify_checkout_open_app_store",img:"img/shopify_checkout_open_app_store.jpg",t:"Descarga la aplicación de APLAZO",
-           i:"Entra a la Shopify App Store y busca la app «Paga en 5 quincenas sin tarjeta de crédito». Ojo: hay dos apps distintas de APLAZO. Esta activa el método de pago; la otra muestra el banner en tus productos.",
+           i:"Abre la <a href='https://apps.shopify.com/aplazo-payment' target='_blank' rel='noopener'>app de APLAZO en la Shopify App Store</a>. Si prefieres buscarla, escribe APLAZO en el buscador y elige la que dice «Paga en 5 quincenas sin tarjeta de crédito». Ojo: hay dos apps de APLAZO. Esta activa el método de pago; la otra muestra el banner en tus productos.",
            d:"Estás viendo la ficha de la app de APLAZO en la Shopify App Store",cred:false},
           {id:"shopify_checkout_click_install",t:"Haz clic en Instalar",
            i:"En la ficha de la app, da clic en el botón Instalar.",
@@ -298,7 +299,7 @@ const KB = {
         blurb: "Para que sepan que pueden pagar en quincenas",
         steps: [
           {id:"shopify_banner_open_app_store",img:"img/shopify_banner_open_app_store.jpg",t:"Descarga la aplicación Aplazo Banner",
-           i:"Entra a la Shopify App Store y busca la app «Promociona los pagos a plazos. Sin tarjeta de crédito». Es una segunda app, distinta a la del checkout.",
+           i:"Abre la <a href='https://apps.shopify.com/aplazo-banner' target='_blank' rel='noopener'>app Aplazo Banner en la Shopify App Store</a>. Si prefieres buscarla, escribe Aplazo Banner en el buscador. Es una segunda app, distinta a la del checkout.",
            d:"Estás viendo la ficha de Aplazo Banner",cred:false},
           {id:"shopify_banner_install",t:"Instala y confirma",
            i:"Da clic en Instalar en la ficha de la app y, cuando Shopify pida confirmación, da clic en Instalar otra vez.",
