@@ -800,7 +800,7 @@ async function revelarCredenciales(){
       S.platform = p;
       // Si ya había empezado antes, lo regresa a donde iba
       const av = leerAvance();
-      if (av && av.platform === p && KB[p].flows[av.flow]) {
+      if (av && av.merchant_id === MERCHANT_ID && av.platform === p && KB[p].flows[av.flow]) {
         S.flow = av.flow;
         S.idx = Math.min(av.idx, KB[p].flows[av.flow].steps.length - 1);
         logEvent('session_resumed', { detail: 'desde la liga, paso ' + (S.idx + 1) });
@@ -1140,7 +1140,7 @@ function guardarAvance(){
     // Solo vale la pena guardar si ya está dentro de un flujo sin terminar
     if (S.platform && S.flow && !S.done){
       localStorage.setItem(LLAVE_AVANCE, JSON.stringify({
-        merchant: S.merchant, platform: S.platform, flow: S.flow,
+        merchant: S.merchant, merchant_id: MERCHANT_ID || null, platform: S.platform, flow: S.flow,
         idx: S.idx, cuando: Date.now()
       }));
     } else if (S.done) {
