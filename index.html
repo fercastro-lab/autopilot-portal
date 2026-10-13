@@ -52,6 +52,11 @@
   .resume .rk{margin:0 0 .3rem!important;font-size:.72rem;font-weight:800;letter-spacing:.12em;
     text-transform:uppercase;color:var(--core)!important}
   .resume .rt{margin:0 0 .25rem!important;font-weight:800;color:var(--text)!important;font-size:1.05rem}
+  .movil{width:100%;max-width:560px;margin:0 auto 1.4rem;padding:1rem 1.2rem;border-radius:14px;
+    border:1px solid var(--line);text-align:left}
+  .movil .mt{margin:0 0 .25rem!important;font-weight:800;color:var(--text)!important;font-size:.98rem}
+  .movil .md{margin:0 0 .8rem!important;font-size:.9rem}
+  .movil .md:last-child{margin-bottom:0!important}
   .resume .rd{margin:0 0 1rem!important;font-size:.92rem}
   .idbox{display:flex;gap:.5rem;width:100%;max-width:480px;margin:0 auto 1.8rem}
   .idbox input{flex:1;font-family:inherit;font-size:1rem;padding:.8rem 1.1rem;
@@ -1148,6 +1153,9 @@ async function ask(userText, opts){
     }
 
     holder.textContent = texto;
+    // Guardamos lo que contestó (hasta 500 caracteres) para saber qué le dijimos
+    // al merchant, sobre todo cuando presiona "No, algo salió diferente".
+    logEvent('assistant_replied',{detail: String(texto).slice(0,500)});
   }catch(e){
     holder.textContent = 'Algo no salió como esperábamos. Vuelve a intentarlo o agenda una sesión';
     logEvent('assistant_error',{detail:String(e && e.message || e)});
@@ -1204,6 +1212,34 @@ function leerAvance(){
   }catch(e){ return null; }
 }
 
+// Si este mismo merchant ya iba a medias en este flujo, regresa el paso donde se quedó.
+// Si no, regresa 0 (el principio). Sirve para que "Menú principal" no borre el avance.
+function pasoGuardado(flow){
+  const av = leerAvance();
+  if (av && av.merchant_id === (MERCHANT_ID || null) && av.platform === S.platform &&
+      av.flow === flow && KB[S.platform].flows[flow] &&
+      av.idx > 0 && av.idx < KB[S.platform].flows[flow].steps.length){
+    return av.idx;
+  }
+  return 0;
+}
+
+// Arranca un flujo: en su paso guardado, o en el 1 si es la primera vez.
+function empezarFlujo(flow){
+  S.flow = flow;
+  S.idx = pasoGuardado(flow);
+  if (S.idx > 0){
+    logEvent('session_resumed',{flow:S.flow, detail:'desde el menú, paso ' + (S.idx + 1)});
+    logEvent('step_entered');
+    render();
+    addMsg('bot','Seguimos donde te quedaste, en el paso ' + (S.idx + 1));
+    return true;
+  }
+  logEvent('flow_started',{flow:S.flow}); logEvent('step_entered');
+  render();
+  return false;
+}
+
 function borrarAvance(){
   try{ localStorage.removeItem(LLAVE_AVANCE); }catch(e){}
 }
@@ -1242,6 +1278,19 @@ function pepe(tipo, saluda){
   </div>`;
 }
 
+// En celular el merchant brinca entre su tienda y esta guía, y ahí se pierde.
+// Le sugerimos la computadora, sin bloquearlo: puede seguir aquí si quiere.
+function avisoCelular(){
+  if (DEVICE !== 'movil' || avisoLiga()) return '';
+  return `<div class="movil">
+    <p class="mt">Te recomendamos hacerlo desde una computadora</p>
+    <p class="md">Vas a cambiar varias veces entre tu tienda y esta guía, y en el celular es fácil perder el paso.
+      ${LIGA_K ? 'Copia tu liga y ábrela en tu computadora.' : 'Abre esta misma página en tu computadora.'}
+      Si prefieres seguir aquí, también puedes.</p>
+    ${LIGA_K ? '<button class="b-ghost" id="copiarliga">Copiar mi liga</button>' : ''}
+  </div>`;
+}
+
 function avisoLiga(){
   if (!S.liga || S.liga.estado === 'ok' || S.liga.estado === 'cargando') return '';
   const textos = {
@@ -1261,7 +1310,7 @@ function renderStart(){
   const el = document.getElementById('screen');
   const av = leerAvance();
   let retomar = '';
-  if (av && KB[av.platform] && KB[av.platform].flows[av.flow]){
+  if (av && av.merchant_id === (MERCHANT_ID || null) && KB[av.platform] && KB[av.platform].flows[av.flow]){
     const f = KB[av.platform].flows[av.flow];
     const n = f.steps.length;
     const paso = Math.min(av.idx, n - 1);
@@ -1279,6 +1328,7 @@ function renderStart(){
     ${avisoLiga()}
     ${retomar}
     ${avisoLiga() ? '' : pepe('hola', true)}
+    ${avisoCelular()}
     <h1>Vamos a instalar APLAZO en tu sitio web</h1>
     <p>Te guío paso a paso, a tu ritmo.${S.merchant ? '' : ' Antes de empezar, dime cómo se llama tu tienda.'}</p>
     ${S.merchant ? '' : `<div class="idbox">
@@ -1318,6 +1368,13 @@ function renderStart(){
     logEvent('merchant_identified',{merchant:v});
     render();
   };
+  const cl = document.getElementById('copiarliga');
+  if (cl) cl.onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(location.href); cl.textContent = 'Liga copiada'; }
+    catch(e){ cl.textContent = 'No se pudo copiar: cópiala desde tu correo'; }
+    logEvent('liga_copiada_movil');
+  };
+
   if (document.getElementById('mgo')){
     document.getElementById('mgo').onclick = go;
     document.getElementById('mname').onkeydown = e => { if (e.key === 'Enter') go(); };
@@ -1339,10 +1396,8 @@ function renderFlowPick(){
   // WooCommerce es así: checkout y banner son la misma instalación.
   const llaves = Object.keys(flows);
   if (llaves.length === 1){
-    S.flow = llaves[0]; S.idx = 0;
-    logEvent('flow_started',{flow:S.flow}); logEvent('step_entered');
-    render();
-    addMsg('bot','Aquí estoy por si algo no cuadra. Sigue los pasos y pregúntame lo que sea');
+    if (!empezarFlujo(llaves[0]))
+      addMsg('bot','Aquí estoy por si algo no cuadra. Sigue los pasos y pregúntame lo que sea');
     return;
   }
 
@@ -1357,12 +1412,9 @@ function renderFlowPick(){
     ).join('')}</div></div>`;
   el.querySelectorAll('.card[data-f]').forEach(b=>b.onclick=()=>{
    try{
-    S.flow = b.dataset.f; S.idx = 0;
-    logEvent('flow_started',{flow:S.flow});
-    logEvent('step_entered');
-    render();
     // Saludo inmediato y local, sin llamar al modelo: cero espera.
-    addMsg('bot','Aquí estoy por si algo no cuadra. Sigue los pasos de la izquierda y pregúntame lo que sea');
+    if (!empezarFlujo(b.dataset.f))
+      addMsg('bot','Aquí estoy por si algo no cuadra. Sigue los pasos de la izquierda y pregúntame lo que sea');
    }catch(err){ alert('Error al iniciar el flujo: ' + err.message); }
   });
 }
@@ -1482,7 +1534,11 @@ function renderWork(){
   if (shot) shot.onclick = ()=> shot.classList.toggle('big');
   document.getElementById('home').onclick = ()=>{
     logEvent('returned_home');
-    S.flow=null; S.idx=0; S.done=false; S.rated=false; render();
+    // Antes regresaba a la plataforma, y en las de un solo flujo (Tiendanube, WooCommerce,
+    // PrestaShop) eso volvía a arrancar en el paso 1. Ahora va al inicio, donde aparece
+    // "Tienes una instalación a medias" con su botón para continuar.
+    guardarAvance();
+    S.flow=null; S.platform=null; S.idx=0; S.done=false; S.rated=false; render();
   };
   const send = ()=>{
     const i = document.getElementById('inp'); const v = i.value.trim();
