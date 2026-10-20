@@ -59,6 +59,13 @@
   .resume .rk{margin:0 0 .3rem!important;font-size:.72rem;font-weight:800;letter-spacing:.12em;
     text-transform:uppercase;color:var(--core)!important}
   .resume .rt{margin:0 0 .25rem!important;font-weight:800;color:var(--text)!important;font-size:1.05rem}
+  .csat{width:100%;max-width:520px;margin:1.2rem auto 0;text-align:left;display:flex;flex-direction:column;gap:.7rem}
+  .csat .cq{margin:0!important;font-weight:800;color:var(--text)!important}
+  .csat textarea{width:100%;padding:.8rem 1rem;border-radius:14px;border:1px solid var(--line);
+    background:transparent;color:var(--text);font:inherit;resize:vertical}
+  .csat .chips{display:flex;flex-wrap:wrap;gap:.5rem}
+  .csat .chip.on{border-color:var(--text);font-weight:800}
+  .csat .cok{margin:0!important;font-weight:700;color:var(--text)!important}
   .movil{width:100%;max-width:560px;margin:0 auto 1.4rem;padding:1rem 1.2rem;border-radius:14px;
     border:1px solid var(--line);text-align:left}
   .movil .mt{margin:0 0 .25rem!important;font-weight:800;color:var(--text)!important;font-size:.98rem}
@@ -1823,12 +1830,76 @@ document.getElementById('restart').onclick = ()=>{
 };
 
 if (ES_PRUEBA) document.getElementById('testflag').style.display = '';
-logEvent('session_started', { detail: MERCHANT_ID ? 'llegó con merchant_id' : 'llegó sin identificar' });
-render();
-revelarCredenciales();
-// La KB se carga mientras el comercio escribe el nombre de su tienda. Para
-// cuando elige plataforma, ya llegó. Si no llegó, se usa la copia interna.
-cargarKB();
+
+// ---------- Encuesta de satisfacción (CSAT) ----------
+// El correo de seguimiento trae ligas como ?csat=4&c=<contacto>&g=<grupo>.
+// Cuando llega así, el portal NO arranca la guía: solo guarda la calificación,
+// da las gracias y ofrece dejar un comentario. Tampoco cuenta como sesión.
+const CSAT = new URLSearchParams(location.search).get('csat');
+
+if (CSAT) {
+  iniciarCsat();
+} else {
+  logEvent('session_started', { detail: MERCHANT_ID ? 'llegó con merchant_id' : 'llegó sin identificar' });
+  render();
+  revelarCredenciales();
+  // La KB se carga mientras el comercio escribe el nombre de su tienda. Para
+  // cuando elige plataforma, ya llegó. Si no llegó, se usa la copia interna.
+  cargarKB();
+}
+
+function iniciarCsat(){
+  const q = new URLSearchParams(location.search);
+  const valida = ['1','2','3','4','5','no_lo_use'].indexOf(CSAT) > -1;
+  // El correo del contacto identifica a quién respondió. Solo se dejan los caracteres
+  // que puede tener un correo, y nunca se muestra en pantalla: solo se guarda en el Sheet.
+  const contacto = (q.get('c') || '').toLowerCase().replace(/[^a-z0-9@._+-]/g, '').slice(0, 120);
+  const grupo = (q.get('g') || '').replace(/[^a-z_]/g, '');             // solo letras y _
+  const datos = 'score=' + (valida ? CSAT : 'invalido') + ';grupo=' + grupo + ';contacto=' + contacto;
+
+  if (valida) logEvent('csat_score', { detail: datos });
+
+  const noLoUse = CSAT === 'no_lo_use';
+  const n = Number(CSAT);
+  const titulo = !valida ? 'Gracias por pasar por aquí'
+               : noLoUse ? 'Gracias por contarnos'
+               : n >= 4  ? '¡Gracias! Nos da mucho gusto'
+               :           'Gracias por decirnos';
+  const pregunta = noLoUse ? '¿Qué te detuvo? Elige una opción o escríbelo'
+                 : n >= 4  ? '¿Qué fue lo que más te ayudó?'
+                 :           '¿Qué podríamos mejorar de la guía?';
+  const opciones = noLoUse
+    ? ['No vi el correo a tiempo', 'Prefiero que alguien me ayude', 'No he tenido tiempo', 'Ya me había integrado antes']
+    : [];
+
+  const el = document.getElementById('screen');
+  el.innerHTML = `<div class="start">
+    ${valida && (noLoUse || n >= 4) ? pepe('fin', true) : ''}
+    <h1>${titulo}</h1>
+    <p>Tu respuesta ya quedó registrada. Si quieres, cuéntanos un poco más: lo leemos todo.</p>
+    <div class="csat">
+      <p class="cq">${pregunta}</p>
+      ${opciones.length ? '<div class="chips">' + opciones.map(o =>
+         '<button class="b-ghost chip" data-o="' + o + '">' + o + '</button>').join('') + '</div>' : ''}
+      <textarea id="csatTxt" rows="4" maxlength="500" placeholder="Escribe aquí (opcional)"></textarea>
+      <button class="b-primary" id="csatSend">Enviar comentario</button>
+      <p class="cok" id="csatOk" hidden>Recibido. ¡Gracias por ayudarnos a mejorar!</p>
+    </div>
+  </div>`;
+
+  const txt = document.getElementById('csatTxt');
+  el.querySelectorAll('.chip').forEach(b => b.onclick = ()=>{
+    txt.value = b.dataset.o; el.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+  });
+  document.getElementById('csatSend').onclick = ()=>{
+    const v = txt.value.trim();
+    if (!v) { txt.focus(); return; }
+    logEvent('csat_comentario', { detail: datos + ';comentario=' + v.replace(/;/g, ',') });
+    document.getElementById('csatSend').disabled = true;
+    txt.disabled = true;
+    document.getElementById('csatOk').hidden = false;
+  };
+}
 </script>
 </div>
 </body>
