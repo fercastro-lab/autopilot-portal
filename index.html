@@ -162,6 +162,9 @@
     background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.45rem .65rem;
     overflow-x:auto;white-space:nowrap}
   .crow .cb{font-size:.78rem;padding:.4rem .8rem}
+  .credmini{margin-top:.8rem;border:1px dashed var(--line);border-radius:12px;padding:.6rem .9rem}
+  .credmini summary{cursor:pointer;font-weight:700;font-size:.9rem}
+  .credmini .credbox{margin-top:.7rem}
   .credbox .cn{margin:.2rem 0 0;font-size:.78rem;color:var(--muted)}
   .cred{margin-top:.75rem;border:1px solid var(--volt);background:rgba(255,204,0,.12);
     border-radius:8px;padding:.65rem .85rem;font-size:.85rem}
@@ -312,7 +315,7 @@ const KB = {
           {id:"shopify_checkout_admin_login",img:"img/shopify_checkout_admin_login.jpg",t:"Inicia sesión en tu cuenta de Shopify",
            i:"Ingresa con el correo y la contraseña de tu cuenta de Shopify. Son tus credenciales de Shopify, no las de APLAZO. No necesitas ser el dueño de la tienda: basta con tener el permiso de administrar e instalar apps y canales.",
            d:"La sesión queda iniciada y regresas a la pantalla de instalación",cred:false,
-           br:"Si la cuenta no tiene el permiso de instalar apps, el dueño lo activa en Configuración, Usuarios y permisos"},
+           br:"Si ya tenías la sesión iniciada, Shopify puede saltarse este paso y llevarte directo a la pantalla de APLAZO que pide tu Merchant ID y tu API Token. Si te pasa, abre Ver tu Merchant ID y API Token aquí abajo. Si la cuenta no tiene el permiso de instalar apps, el dueño lo activa en Configuración, Usuarios y permisos"},
           {id:"shopify_checkout_confirm_install",t:"Revisa los permisos y confirma la instalación",
            i:"Shopify muestra la pantalla Instalar app con los datos a los que la app necesita acceso: ver datos personales y ver y editar datos de la tienda. Revísalos y da clic en Instalar para continuar.",
            d:"Aparece la pantalla de credenciales de APLAZO, que te saluda con el nombre de tu tienda",cred:false},
@@ -1294,6 +1297,29 @@ function pepe(tipo, saluda){
 
 // En celular el merchant brinca entre su tienda y esta guía, y ahí se pierde.
 // Le sugerimos la computadora, sin bloquearlo: puede seguir aquí si quiere.
+// La caja con el Merchant ID y el token. Se usa completa en el paso que pide credenciales
+// y, plegada, en todos los demás: algunas plataformas las piden antes de lo que dice la guía
+// (en Shopify, si ya tenías sesión iniciada, la pantalla de APLAZO sale justo después de Instalar).
+// La caja plegada solo sale del paso 2 hasta el paso anterior al de credenciales.
+// En Shopify checkout eso es 2, 3 y 4 (el 5 ya muestra la caja abierta).
+// Si el flujo no tiene paso de credenciales, no sale nunca.
+function miniCreds(steps){
+  const iCred = steps.findIndex(x => x.cred);
+  return iCred > -1 && S.idx >= 1 && S.idx < iCred;
+}
+
+function cajaCredenciales(){
+  return `<p class="ck">Tus credenciales de APLAZO</p>
+    <div class="crow"><span class="cl">Merchant ID</span>
+      <code class="cv">${S.creds.merchant_id}</code>
+      <button class="b-ghost cb" id="cpid">Copiar</button></div>
+    <div class="crow"><span class="cl">API Token</span>
+      <code class="cv" id="tokv">${S.creds.visible ? S.creds.api_token : '•••••••• ' + S.creds.api_token.slice(-4)}</code>
+      <button class="b-ghost cb" id="vertok">${S.creds.visible ? 'Ocultar' : 'Mostrar'}</button>
+      <button class="b-ghost cb" id="cptok">Copiar</button></div>
+    <p class="cn">Son personales: no las compartas. No son tu usuario ni tu contraseña del panel de APLAZO.</p>`;
+}
+
 function avisoCelular(){
   if (DEVICE !== 'movil' || avisoLiga()) return '';
   return `<div class="movil">
@@ -1470,18 +1496,12 @@ function renderWork(){
             <p class="zoomhint">Da clic en la imagen para verla más grande</p>` : ''}
           <div class="check"><span class="tick"></span>
             <span><b>Ya quedó cuando</b> ${st.d}</span></div>
-          ${st.cred ? (S.creds ? `<div class="credbox">
-              <p class="ck">Tus credenciales</p>
-              <div class="crow"><span class="cl">Merchant ID</span>
-                <code class="cv">${S.creds.merchant_id}</code>
-                <button class="b-ghost cb" id="cpid">Copiar</button></div>
-              <div class="crow"><span class="cl">API Token</span>
-                <code class="cv" id="tokv">${S.creds.visible ? S.creds.api_token : '•••••••• ' + S.creds.api_token.slice(-4)}</code>
-                <button class="b-ghost cb" id="vertok">${S.creds.visible ? 'Ocultar' : 'Mostrar'}</button>
-                <button class="b-ghost cb" id="cptok">Copiar</button></div>
-              <p class="cn">Son personales: no las compartas. Puedes copiarlas sin mostrarlas.</p>
-            </div>` : `<div class="cred"><b>Vas a necesitar tus credenciales</b> Si no las tienes
-            a la mano, puedes agendar una sesión de integración</div>`) : ''}
+          ${st.cred ? (S.creds ? `<div class="credbox">${cajaCredenciales()}</div>`
+            : `<div class="cred"><b>Vas a necesitar tus credenciales</b> Si no las tienes
+            a la mano, puedes agendar una sesión de integración</div>`)
+            : (S.creds && miniCreds(f.steps) ? `<details class="credmini" id="credmini" ${S.credsAbiertas ? 'open' : ''}>
+                <summary>¿Ya te las pide la pantalla? Ver tu Merchant ID y API Token</summary>
+                <div class="credbox">${cajaCredenciales()}</div></details>` : '')}
         </div>
 
         <div class="ask">
@@ -1524,6 +1544,11 @@ function renderWork(){
   };
   document.getElementById('esc').onclick = ()=>{
     logEvent('escalated',{reason:'calendly_desde_el_paso'});
+  };
+  const cm = document.getElementById('credmini');
+  if (cm) cm.ontoggle = ()=>{
+    S.credsAbiertas = cm.open;    // que no se cierre sola al mostrar u ocultar el token
+    if (cm.open) logEvent('credentials_opened_early');
   };
   const cpid = document.getElementById('cpid');
   if (cpid) cpid.onclick = ()=> copiarDato('id', cpid);
