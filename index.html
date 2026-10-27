@@ -59,6 +59,11 @@
   .resume .rk{margin:0 0 .3rem!important;font-size:.72rem;font-weight:800;letter-spacing:.12em;
     text-transform:uppercase;color:var(--core)!important}
   .resume .rt{margin:0 0 .25rem!important;font-weight:800;color:var(--text)!important;font-size:1.05rem}
+  .otp{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin:1rem auto .4rem;max-width:520px;width:100%}
+  .otp input{flex:1;min-width:220px;padding:.8rem 1rem;border-radius:999px;border:2px solid var(--line);
+    background:transparent;color:var(--text);font:inherit;font-size:1rem}
+  .otp input.otpcode{letter-spacing:.4em;text-align:center;font-weight:800;font-size:1.3rem}
+  .otpmsg{min-height:1.4em;margin:.2rem 0 .6rem!important}
   .csat{width:100%;max-width:520px;margin:1.2rem auto 0;text-align:left;display:flex;flex-direction:column;gap:.7rem}
   .csat .cq{margin:0!important;font-weight:800;color:var(--text)!important}
   .csat textarea{width:100%;padding:.8rem 1rem;border-radius:14px;border:1px solid var(--line);
@@ -832,8 +837,15 @@ async function revelarCredenciales(){
   S.liga = { estado: 'cargando' }; render();
   try{
     const r = await fetch(CRED_URL, { method:'POST',
-      body: JSON.stringify({ type:'reveal', m: MERCHANT_ID, k: LIGA_K, dispositivo: DEVICE }) });
+      body: JSON.stringify({ type:'reveal', m: MERCHANT_ID, k: LIGA_K, dispositivo: DEVICE, sesion: leerSesionOtp() }) });
     const d = await r.json();
+    if (!d.ok && d.motivo === 'requiere_codigo'){
+      // La ventanilla pide verificar el correo antes de entregar credenciales
+      borrarSesionOtp();
+      S.liga = { estado: 'otp', paso: 'correo' };
+      logEvent('otp_requerido');
+      render(); return;
+    }
     if (!d.ok){
       S.liga = { estado: d.motivo || 'error' };
       logEvent('liga_rechazada', { detail: d.motivo || 'error' });
@@ -861,6 +873,86 @@ async function revelarCredenciales(){
     logEvent('liga_rechazada', { detail: 'sin conexión con la ventanilla' });
     render();
   }
+}
+
+// ---------- Verificación con código (OTP) ----------
+// La sesión se guarda en este navegador por unas horas: si el celular recarga la página
+// al cambiar de app, no tiene que pedir otro código.
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+// Es función (y no constante) porque MERCHANT_ID se declara más abajo en el archivo
+const llaveOtp = () => 'aplazo_otp_' + MERCHANT_ID;
+function leerSesionOtp(){
+  try{ const x = JSON.parse(localStorage.getItem(llaveOtp()) || 'null');
+       return x && x.exp > Date.now() ? x.sesion : ''; }catch(e){ return ''; }
+}
+function guardarSesionOtp(sesion, exp){ try{ localStorage.setItem(llaveOtp(), JSON.stringify({ sesion, exp })); }catch(e){} }
+function borrarSesionOtp(){ try{ localStorage.removeItem(llaveOtp()); }catch(e){} }
+
+function renderOtp(){
+  const L = S.liga, el = document.getElementById('screen');
+  const correo = L.paso === 'correo';
+  el.innerHTML = `<div class="start">
+    ${pepe('hola', true)}
+    <h1>${correo ? 'Primero, confirmemos que eres tú' : 'Revisa tu correo'}</h1>
+    <p>${correo ? 'Escribe el correo con el que registraste tu negocio en APLAZO. Te enviaremos un código para ver tus credenciales.'
+                : 'Te enviamos un código de 6 dígitos a <b>' + esc(L.email || '') + '</b>. Escríbelo aquí.'}</p>
+    <div class="otp">
+      ${correo
+        ? `<input id="otpIn" type="email" autocomplete="email" placeholder="correo@tunegocio.com" value="${esc(L.email || '')}">
+           <button class="b-primary" id="otpGo">Enviarme el código</button>`
+        : `<input id="otpIn" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000 000" class="otpcode">
+           <button class="b-primary" id="otpGo">Validar</button>`}
+    </div>
+    <p class="otpmsg" id="otpMsg">${esc(L.mensaje || '')}</p>
+    ${correo ? '' : `<p class="sub"><a href="#" id="otpRe">Reenviar código</a> · <a href="#" id="otpOtro">Usar otro correo</a></p>`}
+    <p class="sub">¿No tienes acceso a ese correo? <a href="${CALENDLY}" target="_blank" rel="noopener">Agenda una sesión con el equipo de integración</a></p>
+  </div>`;
+  const inp = document.getElementById('otpIn'), go = document.getElementById('otpGo');
+  inp.focus();
+  inp.onkeydown = e => { if (e.key === 'Enter') go.click(); };
+  go.onclick = () => correo ? pedirCodigo(inp.value) : validarCodigo(inp.value);
+  const re = document.getElementById('otpRe');
+  if (re) re.onclick = e => { e.preventDefault(); pedirCodigo(L.email); };
+  const otro = document.getElementById('otpOtro');
+  if (otro) otro.onclick = e => { e.preventDefault(); S.liga = { estado: 'otp', paso: 'correo' }; render(); };
+}
+
+async function llamarVentanilla(cuerpo){
+  const r = await fetch(CRED_URL, { method: 'POST', body: JSON.stringify(Object.assign({ m: MERCHANT_ID, k: LIGA_K }, cuerpo)) });
+  return r.json();
+}
+
+async function pedirCodigo(correo){
+  correo = String(correo || '').trim();
+  const msg = document.getElementById('otpMsg'), go = document.getElementById('otpGo');
+  if (!correo) { msg.textContent = 'Escribe tu correo'; return; }
+  go.disabled = true; msg.textContent = 'Enviando…';
+  try{
+    const d = await llamarVentanilla({ type: 'otp_pedir', email: correo });
+    logEvent('otp_pedido', { detail: d.ok ? 'ok' : (d.motivo || 'error') });
+    if (d.ok) { S.liga = { estado: 'otp', paso: 'codigo', email: correo, mensaje: d.mensaje }; render(); }
+    else { msg.textContent = d.mensaje || 'No pudimos enviar el código. Intenta de nuevo.'; go.disabled = false; }
+  }catch(e){ msg.textContent = 'Sin conexión. Intenta de nuevo.'; go.disabled = false; }
+}
+
+async function validarCodigo(codigo){
+  codigo = String(codigo || '').replace(/\D/g, '');
+  const msg = document.getElementById('otpMsg'), go = document.getElementById('otpGo');
+  if (codigo.length !== 6) { msg.textContent = 'El código tiene 6 dígitos'; return; }
+  go.disabled = true; msg.textContent = 'Validando…';
+  try{
+    const d = await llamarVentanilla({ type: 'otp_verificar', code: codigo });
+    if (d.ok) {
+      guardarSesionOtp(d.sesion, d.expira);
+      logEvent('otp_validado');
+      revelarCredenciales();              // ahora sí, con sesión
+    } else {
+      logEvent('otp_fallido', { detail: d.motivo || 'error' });
+      msg.textContent = d.mensaje || 'No pudimos validar el código.';
+      go.disabled = false;
+      if (d.motivo === 'sin_intentos' || d.motivo === 'sin_codigo') S.liga.mensaje = d.mensaje;
+    }
+  }catch(e){ msg.textContent = 'Sin conexión. Intenta de nuevo.'; go.disabled = false; }
 }
 
 async function copiarDato(que, boton){
@@ -1052,6 +1144,7 @@ function sendEvent(payload){
   try{
     fetch(BACKEND_URL, {
       method: 'POST',
+      keepalive: true,   // el evento llega aunque la página se cierre o cambie de dirección
       // text/plain a propósito: evita la verificación previa del navegador,
       // que Apps Script no sabe responder. El contenido sigue siendo JSON.
       body: JSON.stringify(payload)
@@ -1267,6 +1360,7 @@ function render(){
     document.getElementById('restart').style.display = S.platform ? '' : 'none';
     document.getElementById('ctx').textContent = contextLabel();
     if (S.liga && S.liga.estado === 'cargando') return renderCargandoLiga();
+    if (S.liga && S.liga.estado === 'otp') return renderOtp();
     if (!S.platform) return renderStart();
     if (!S.flow) return renderFlowPick();
     if (S.checkTest) return renderCheckTest();
@@ -1795,7 +1889,7 @@ function renderDone(){
     srsi.disabled = true; srsi.textContent = 'Registrando…';
     try{
       const r = await fetch(CRED_URL, { method:'POST',
-        body: JSON.stringify({ type:'integrado', m: MERCHANT_ID, k: LIGA_K }) });
+        body: JSON.stringify({ type:'integrado', m: MERCHANT_ID, k: LIGA_K, sesion: leerSesionOtp() }) });
       const d = await r.json();
       S.reporte = d.ok ? 'ok' : 'error';
       logEvent('merchant_reporto_integracion', { detail: d.ok ? 'registrado' : (d.motivo || 'error') });
@@ -1862,15 +1956,44 @@ if (ES_PRUEBA) document.getElementById('testflag').style.display = '';
 // da las gracias y ofrece dejar un comentario. Tampoco cuenta como sesión.
 const CSAT = new URLSearchParams(location.search).get('csat');
 
+// ---------- Qué eligió en el correo ----------
+// Los correos del grupo bot traen dos botones con la misma liga personal:
+//   ...&elige=portal        -> entra a la guía normal
+//   ...&elige=especialista  -> se registra y lo mandamos a agendar sesión
+// Así medimos qué prefieren, con el mismo buzón de eventos de siempre.
+const ELIGE = new URLSearchParams(location.search).get('elige');
+
 if (CSAT) {
   iniciarCsat();
+} else if (ELIGE === 'especialista') {
+  irAEspecialista();
 } else {
+  if (ELIGE === 'portal') logEvent('eligio_portal');
   logEvent('session_started', { detail: MERCHANT_ID ? 'llegó con merchant_id' : 'llegó sin identificar' });
   render();
   revelarCredenciales();
   // La KB se carga mientras el comercio escribe el nombre de su tienda. Para
   // cuando elige plataforma, ya llegó. Si no llegó, se usa la copia interna.
   cargarKB();
+}
+
+// No pide credenciales ni cuenta como apertura de la liga: solo registra y redirige
+function irAEspecialista(){
+  logEvent('eligio_especialista');
+  document.getElementById('screen').innerHTML = `<div class="start">
+    ${pepe('hola', true)}
+    <h1>Te llevamos a agendar tu sesión</h1>
+    <p>Alguien del equipo de integración te acompaña paso a paso. Si no se abre en unos segundos,
+       <a href="${CALENDLY}">da clic aquí</a>.</p>
+    <p class="sub">¿Prefieres hacerlo por tu cuenta? <a id="mejorPortal" href="#">Abre tu guía</a></p>
+  </div>`;
+  document.getElementById('mejorPortal').onclick = (e)=>{
+    e.preventDefault();
+    clearTimeout(salto);
+    logEvent('cambio_a_portal');
+    location.href = location.href.replace(/([?&])elige=especialista/, '$1elige=portal');
+  };
+  const salto = setTimeout(()=>{ location.href = CALENDLY; }, 1500);
 }
 
 function iniciarCsat(){
